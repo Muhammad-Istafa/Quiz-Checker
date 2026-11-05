@@ -96,23 +96,12 @@ def _find_project_root() -> str:
     # Auto-recovery for Kaggle: clone repo if internet is available
     if os.path.isdir("/kaggle/working") or "KAGGLE_KERNEL_RUN_TYPE" in os.environ:
         print("[SETUP] Shared src/ not found in /kaggle/input or local directories.")
-        # Check for Kaggle Secrets GitHub PAT (for private repositories)
-        clone_url = "https://github.com/Muhammad-Istafa/Quiz-Checker.git"
-        try:
-            from kaggle_secrets import UserSecretsClient
-            gh_token = UserSecretsClient().get_secret("GITHUB_TOKEN")
-            if gh_token:
-                clone_url = f"https://oauth2:{gh_token}@github.com/Muhammad-Istafa/Quiz-Checker.git"
-                print("[SETUP] Found GITHUB_TOKEN in Kaggle Secrets; authenticating for private repository clone.")
-        except Exception:
-            pass
-
-        print("[SETUP] Attempting automatic clone from GitHub...")
+        print("[SETUP] Attempting automatic clone from GitHub (https://github.com/Muhammad-Istafa/Quiz-Checker.git)...")
         try:
             repo_dest = "/kaggle/working/Quiz-Checker"
             if not os.path.isdir(repo_dest):
                 subprocess.run(
-                    ["git", "clone", "--depth", "1", clone_url, repo_dest],
+                    ["git", "clone", "--depth", "1", "https://github.com/Muhammad-Istafa/Quiz-Checker.git", repo_dest],
                     check=True, capture_output=True, text=True
                 )
             target = os.path.join(repo_dest, "cpp-grader-code")
@@ -125,15 +114,10 @@ def _find_project_root() -> str:
     raise RuntimeError(
         f"\n{'='*75}\n"
         f"Shared src/ + config/ not found in {cands}.\n"
-        f"Since the GitHub repository is private, please do ONE of the following in Kaggle:\n\n"
-        f"  Option 1 (Recommended — Fast & Simple, No Tokens Needed):\n"
-        f"    1. In the Kaggle notebook right sidebar, click '+ Add Data' -> 'Upload'.\n"
-        f"    2. Upload the 'cpp-grader-code.zip' archive (or 'cpp-grader-code' folder) as a private dataset.\n"
-        f"    3. Re-run this cell. Kaggle will mount it at /kaggle/input/cpp-grader-code/ and succeed immediately!\n\n"
-        f"  Option 2 (Via GitHub Private Access Token):\n"
-        f"    1. In Kaggle top menu: Add-ons -> Secrets -> Add 'GITHUB_TOKEN' with your GitHub Personal Access Token.\n"
-        f"    2. Ensure Internet is ON (Settings -> Internet: On).\n"
-        f"    3. Re-run this cell to clone authenticated.\n"
+        f"To fix this in Kaggle, please do ONE of the following:\n\n"
+        f"  1. Enable Internet in Kaggle settings (Right sidebar -> Notebook options -> Settings -> Internet: On),\n"
+        f"     then re-run this cell. The notebook will automatically clone the required code from GitHub.\n\n"
+        f"  2. OR attach 'cpp-grader-code' as a Kaggle dataset (Click '+ Add Data' -> Upload folder 'cpp-grader-code').\n"
         f"{'='*75}\n"
     )
 
@@ -4250,6 +4234,8 @@ print("[PASS] Audit thresholds met.")
 UNSEEN_VAL_QIDS = ["fib_rec", "minmax", "pattern_star"]
 UNSEEN_TEST_QIDS = ["fact_rec", "sumdigits_rec", "bubblesort"]
 ALL_UNSEEN_QIDS = set(UNSEEN_VAL_QIDS + UNSEEN_TEST_QIDS)
+UNSEEN_FAMILY_QIDS = set(UNSEEN_VAL_QIDS)
+UNSEEN_SINGLE_QIDS = set(UNSEEN_TEST_QIDS)
 SEEN_QIDS = [q.qid for q in QUESTION_BANK if q.qid not in ALL_UNSEEN_QIDS]
 
 split_programs: Dict[str, List[Program]] = {
