@@ -1,0 +1,40 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Node.js
+node_modules/
+
+# Large model weights, checkpoints, zip bundles
+*.zip
+*.tar.gz
+*.bin
+*.pt
+*.safetensors
+output/
+output_arm_*/
+best_adapter/
+checkpoint-*/
+
+# Private Student Data & Raw Extracted Submissions (FAST NUCES Privacy Firewall)
+quiz3_split_private.json
+quiz3_raw/
+quiz3_clean/
+quiz3_xlsx_extracted/
+Quiz3-1E_extracted/
+*.xlsx
+scripts/compile_audit.json
+scripts/forensics_10_correct.json
+
+# Extracted prior run outputs
+nb3_output1_extracted/
+
+# Cloned repositories & temporary scratch
+repos/
+scratch/
+user_prompt.txt

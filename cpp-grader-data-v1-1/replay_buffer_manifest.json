@@ -1,0 +1,12 @@
+{
+  "total_train_samples": 3000,
+  "stages": [
+    "arrays",
+    "conditionals",
+    "functions",
+    "loops",
+    "strings"
+  ],
+  "replay_ratio": 0.3,
+  "sequential_training_supported": true
+}

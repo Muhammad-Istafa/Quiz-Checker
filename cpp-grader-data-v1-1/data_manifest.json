@@ -1,0 +1,51 @@
+{
+  "dataset_version": "v1.1",
+  "schema_version": "v3.1",
+  "seed": 42,
+  "creation_timestamp": "2026-10-08T04:40:40",
+  "split_sizes": {
+    "train": 3000,
+    "val": 300,
+    "test_seen": 300,
+    "test_unseen": 300
+  },
+  "split_program_counts": {
+    "train": 658,
+    "val": 154,
+    "test_seen": 168,
+    "test_unseen": 300
+  },
+  "question_count": 20,
+  "program_count": 1398,
+  "mutation_count": 180,
+  "generation_config": {
+    "seed": 42,
+    "n_train_cap": 3000,
+    "n_val_cap": 300,
+    "n_test_seen_cap": 300,
+    "n_test_unseen_cap": 300,
+    "r_train": 5,
+    "r_eval": 3,
+    "max_programs_per_question": 70,
+    "style_noise_fraction": 0.85,
+    "ocr_noise_fraction": 0.15,
+    "garbled_scan_fraction": 0.03,
+    "compile_timeout": 10.0,
+    "run_timeout": 2.0,
+    "max_workers": 4,
+    "base_dir": "/kaggle/working",
+    "data_dir": "/kaggle/working/data_v1_1",
+    "cache_file": "/kaggle/working/data_v1_1/exec_cache.json"
+  },
+  "augmentation_config": {
+    "style_noise_fraction": 0.85,
+    "ocr_noise_fraction": 0.15,
+    "garbled_scan_fraction": 0.03
+  },
+  "file_hashes": {
+    "train.jsonl": "bab5013df67751f570d3bc9c364eceb55af26b1382069863be53f290249edb47",
+    "val.jsonl": "c1b75ffa445eeeec4c73c4eb2213c37317a54d5aa2debb6a7868e869c15a4a03",
+    "test_seen.jsonl": "e73079ed63bda8e41c47ba064b6a2eaec3dcc414f0ad81abc4f101c79b6ced2c",
+    "test_unseen.jsonl": "0a8d1a0d98153c333886e3c335ddb54bd8697e69e130a4818dc0cb9078a9f8e2"
+  }
+}
