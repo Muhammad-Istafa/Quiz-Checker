@@ -50,11 +50,83 @@ for _pkg in ["huggingface_hub", "bitsandbytes", "peft", "accelerate", "transform
 # ============================================================================
 # 0B. PREFLIGHT — must all pass before proceeding
 # ============================================================================
-import os, sys, tempfile, json, shutil
+import os, sys, tempfile, json, shutil, glob as _glob, subprocess
 
 print("── Preflight verification ──")
 
-# 1. Python environment & Compiler check
+# 1. Project Root & Shared Modules Resolution
+def _find_project_root() -> str:
+    """Folder that contains src/schema.py and config/schema_version.txt."""
+    if os.environ.get("CPP_GRADER_ROOT") and os.path.isdir(os.environ["CPP_GRADER_ROOT"]):
+        cand = os.environ["CPP_GRADER_ROOT"]
+        if os.path.isfile(os.path.join(cand, "src", "schema.py")):
+            return cand
+
+    cands = [
+        os.getcwd(),
+        os.path.join(os.getcwd(), "cpp-grader-code"),
+        os.path.join(os.getcwd(), "Quiz-Checker", "cpp-grader-code"),
+        "/kaggle/working",
+        "/kaggle/working/cpp-grader-code",
+        "/kaggle/working/Quiz-Checker/cpp-grader-code",
+    ]
+    if "__file__" in globals():
+        cands.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        cands.insert(1, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "cpp-grader-code"))
+
+    kaggle = sorted({os.path.dirname(os.path.dirname(p))
+                     for p in _glob.glob("/kaggle/input/**/src/schema.py", recursive=True)})
+    kaggle += sorted({os.path.dirname(p)
+                      for p in _glob.glob("/kaggle/input/**/schema.py", recursive=True)})
+    cands += kaggle
+
+    for root in cands:
+        if root and os.path.isfile(os.path.join(root, "src", "schema.py")):
+            cfg_dir = os.path.join(root, "config")
+            os.makedirs(cfg_dir, exist_ok=True)
+            ver_file = os.path.join(cfg_dir, "schema_version.txt")
+            if not os.path.isfile(ver_file):
+                try:
+                    with open(ver_file, "w", encoding="utf-8") as f:
+                        f.write("v3.1\n")
+                except Exception:
+                    pass
+            return root
+
+    # Auto-recovery for Kaggle: clone repo if internet is available
+    if os.path.isdir("/kaggle/working") or "KAGGLE_KERNEL_RUN_TYPE" in os.environ:
+        print("[SETUP] Shared src/ not found in /kaggle/input or local directories.")
+        print("[SETUP] Attempting automatic clone from GitHub (https://github.com/Muhammad-Istafa/Quiz-Checker.git)...")
+        try:
+            repo_dest = "/kaggle/working/Quiz-Checker"
+            if not os.path.isdir(repo_dest):
+                subprocess.run(
+                    ["git", "clone", "--depth", "1", "https://github.com/Muhammad-Istafa/Quiz-Checker.git", repo_dest],
+                    check=True, capture_output=True, text=True
+                )
+            target = os.path.join(repo_dest, "cpp-grader-code")
+            if os.path.isfile(os.path.join(target, "src", "schema.py")):
+                print(f"[SETUP] Successfully cloned and located src/ at: {target}")
+                return target
+        except Exception as _clone_err:
+            print(f"[WARN] Automatic git clone failed: {_clone_err}")
+
+    raise RuntimeError(
+        f"\n{'='*75}\n"
+        f"Shared src/ + config/ not found in {cands}.\n"
+        f"To fix this in Kaggle, please do ONE of the following:\n\n"
+        f"  1. Enable Internet in Kaggle settings (Right sidebar -> Notebook options -> Settings -> Internet: On),\n"
+        f"     then re-run this cell. The notebook will automatically clone the required code from GitHub.\n\n"
+        f"  2. OR attach 'cpp-grader-code' as a Kaggle dataset (Click '+ Add Data' -> Upload folder 'cpp-grader-code').\n"
+        f"{'='*75}\n"
+    )
+
+PROJECT_ROOT = _find_project_root()
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+print(f"[PASS] Project root resolved: {PROJECT_ROOT}")
+
+# 2. Python environment & Compiler check
 print(f"[PASS] Python {sys.version.split()[0]} on {sys.platform}")
 _gpp_bin = shutil.which("g++")
 if _gpp_bin:
@@ -62,7 +134,7 @@ if _gpp_bin:
 else:
     print("[WARN] C++ Compiler: g++ not found; sandboxed execution will use cached execution reports.")
 
-# 2. Accelerator detection (NB1 supports both CPU and GPU)
+# 3. Accelerator detection (NB1 supports both CPU and GPU)
 try:
     import torch
     if torch.cuda.is_available():
@@ -72,7 +144,7 @@ try:
 except Exception as _e:
     print(f"[INFO] Torch not loaded ({_e}); running on CPU.")
 
-# 3. Verify shared packages & schema
+# 4. Verify shared packages & schema
 try:
     from src.schema import SCHEMA_VERSION, validate_grading_output
     from src.prompts import SYSTEM_PROMPT, build_grading_messages
@@ -101,30 +173,6 @@ logger = logging.getLogger("nb1_data")
 # ============================================================================
 # 0C-bis. SHARED CODE (src/ — one copy of schema, prompt and paths; README §5)
 # ============================================================================
-import glob as _glob
-
-def _find_project_root() -> str:
-    """Folder that contains src/schema.py and config/schema_version.txt."""
-    if os.environ.get("CPP_GRADER_ROOT"):
-        cands = [os.environ["CPP_GRADER_ROOT"]]
-    else:
-        cands = [os.getcwd(), "/kaggle/working"]
-        if "__file__" in globals():
-            cands.insert(0, os.path.dirname(os.path.abspath(__file__)))
-        kaggle = sorted({os.path.dirname(os.path.dirname(p))
-                         for p in _glob.glob("/kaggle/input/**/src/schema.py", recursive=True)})
-        if len(kaggle) > 1:
-            raise RuntimeError(f"Several attached datasets contain src/: {kaggle}. Set CPP_GRADER_ROOT.")
-        cands += kaggle
-    for root in cands:
-        if (os.path.isfile(os.path.join(root, "src", "schema.py"))
-                and os.path.isfile(os.path.join(root, "config", "schema_version.txt"))):
-            return root
-    raise RuntimeError(
-        f"Shared src/ + config/ not found in {cands}. Attach the project dataset "
-        "(with src/ and config/) or set CPP_GRADER_ROOT."
-    )
-
 PROJECT_ROOT = _find_project_root()
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)

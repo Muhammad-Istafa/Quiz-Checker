@@ -36,12 +36,33 @@ def _find_repo_root() -> str:
     cands = [os.environ.get("CPP_GRADER_ROOT", "")]
     if "__file__" in globals():
         cands.append(os.path.dirname(os.path.abspath(__file__)))
-    cands.append(os.getcwd())
+    cands += [
+        os.getcwd(),
+        os.path.join(os.getcwd(), "cpp-grader-code"),
+        os.path.join(os.getcwd(), "Quiz-Checker", "cpp-grader-code"),
+        "/kaggle/working",
+        "/kaggle/working/cpp-grader-code",
+        "/kaggle/working/Quiz-Checker/cpp-grader-code",
+    ]
     cands += sorted({os.path.dirname(os.path.dirname(p))
                      for p in glob.glob("/kaggle/input/**/src/schema.py", recursive=True)})
     for c in cands:
         if c and os.path.isfile(os.path.join(c, "src", "schema.py")):
             return c
+    if os.path.isdir("/kaggle/working") or "KAGGLE_KERNEL_RUN_TYPE" in os.environ:
+        try:
+            import subprocess
+            repo_dest = "/kaggle/working/Quiz-Checker"
+            if not os.path.isdir(repo_dest):
+                subprocess.run(
+                    ["git", "clone", "--depth", "1", "https://github.com/Muhammad-Istafa/Quiz-Checker.git", repo_dest],
+                    check=True, capture_output=True, text=True
+                )
+            target = os.path.join(repo_dest, "cpp-grader-code")
+            if os.path.isfile(os.path.join(target, "src", "schema.py")):
+                return target
+        except Exception:
+            pass
     raise RuntimeError(f"src/schema.py not found in {cands}; set CPP_GRADER_ROOT.")
 
 
