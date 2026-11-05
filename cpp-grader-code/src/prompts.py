@@ -3,7 +3,7 @@
 Enforces Pure-Logic Complete Rubric Evaluation (Pathak et al., CRE) and 3-step
 structured output (Koutcheme et al., SIGCSE 2026).
 The exact same prompt generation logic must be used to build training data (NB1),
-teacher distillation (NB1b), train (NB2), and evaluate / infer (NB3).
+teacher distillation (NB1b), train (NB2), evaluate / infer (NB3), and grade Excel quizzes.
 """
 import json
 from typing import Optional, List, Dict, Any
@@ -43,21 +43,17 @@ def add_line_numbers(code: str) -> str:
     return "\n".join(f"{i + 1:{width}}| {line}" for i, line in enumerate(lines))
 
 
-def build_exec_section(rep: Optional[dict], is_scan: bool = False) -> str:
+def build_exec_section(rep: Optional[dict]) -> str:
     """Render the execution report.
     
     Execution reports are purely informational and must never gate or penalize
-    logical criteria marks. For scan-derived code, highlights potential transcription noise.
+    logical criteria marks.
     """
-    prefix = ""
-    if is_scan:
-        prefix = "Note: Execution report is indicative; may reflect transcription noise from scanning/OCR.\n"
-
     if not isinstance(rep, dict) or not rep or rep.get("available") is False:
-        return f"{prefix}Execution report: not available (evaluate purely on static C++ logical intent)"
+        return "Execution report: not available (evaluate purely on static C++ logical intent)"
 
     info_note = (
-        f"{prefix}Note: Execution report is purely informational. Non-compiling code or runtime errors "
+        "Note: Execution report is purely informational. Non-compiling code or runtime errors "
         "caused by syntax/typing slips must NOT penalize logical rubric criteria."
     )
 
@@ -96,10 +92,9 @@ def build_grading_messages(
     question_text: str,
     rubric: List[Dict[str, Any]],
     student_answer_lineno: str,
-    execution_report: Optional[dict],
+    execution_report: Optional[dict] = None,
     reference_solution: Optional[str] = None,
-    include_reference: bool = False,
-    is_scan: bool = False
+    include_reference: bool = False
 ) -> list:
     """System + user chat messages for one Complete Rubric Evaluation (CRE) request."""
     rub = json.dumps(
@@ -117,7 +112,7 @@ def build_grading_messages(
         sections.append(f"## Reference Solution (one valid approach among many)\n```cpp\n{reference_solution.strip()}\n```")
 
     sections.append(f"## Student Answer (with line numbers)\n```\n{student_answer_lineno}\n```")
-    sections.append(f"## Execution Report\n{build_exec_section(execution_report, is_scan=is_scan)}")
+    sections.append(f"## Execution Report\n{build_exec_section(execution_report)}")
     sections.append("Grade this answer step-by-step according to the instructions, then output the final JSON and constructive feedback.")
 
     user_msg = "\n\n".join(sections)

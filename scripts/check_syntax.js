@@ -50,6 +50,8 @@ const filesToTest = [
     'cpp-grader-code/src/real_sources.py',
     'cpp-grader-code/src/exec_harness.py',
     'cpp-grader-code/src/parse.py',
+    'cpp-grader-code/src/quiz_grader.py',
+    'cpp-grader-code/grade_quiz.py',
     'cpp-grader-code/n0_audit.py',
     'cpp-grader-code/nb1_data.py',
     'scripts/run_real_exec.py',

@@ -164,10 +164,10 @@ class Config:
     # Program enumeration cap per question
     max_programs_per_question: int = 70
 
-    # Noise fractions
+    # Real Student Typed Code (Excel input: zero artificial OCR scan noise)
     style_noise_fraction: float = 0.85
-    ocr_noise_fraction: float = 0.15
-    garbled_scan_fraction: float = 0.03  # ~3% unreadable scans
+    ocr_noise_fraction: float = 0.0      # Disabled: student solutions are digital code in Excel
+    garbled_scan_fraction: float = 0.0   # Disabled: no scan cutoff or garbled artifacts in Excel
 
     # Execution timeouts & sandbox limits
     compile_timeout: float = 10.0

@@ -464,15 +464,11 @@ int main() {
 
 ---
 
-## Scan-Derived Text Variant Note
+## Standard University Workflow: Question + Rubric + Excel Submissions
 
-For submissions where student code is derived from scanned handwritten scripts (not typed), the grader should indicate:
+Student submissions are digital text extracted directly from Excel spreadsheets (`.xlsx`) exactly as students typed them into cells or online forms (like `Quiz3_1E.xlsx`). Zero OCR scanning, handwritten image processing, or artificial scan noise is applied.
 
-> **Execution report is indicative; may reflect transcription noise.** Transcription errors (incorrect characters, merged tokens, extra whitespace) may prevent compilation but do not necessarily reflect the student's intended logic. Training examples exist where transcription noise breaks compilation but full logic marks are awarded.
-
-**Example scan-noise pattern that must NOT reduce marks:**
-- `cin >> n;` → `c1n >> n;` (OCR misreads 'i' as '1')  
-- `cout <<` → `cout <<` (unchanged) but `endl` → `end1` (1 instead of l)  
-- `n % 10` → `n % 1O` (capital O instead of zero)
-
-In all these cases: logic marks are awarded based on the **inferred intended logic**, not the character-level transcription.
+The model evaluates typed C++ submissions strictly on logical correctness against the rubric:
+- **Input Contract**: `question.txt` + `rubric.txt` + `Solutions.xlsx`
+- **Output Contract**: `Graded_Quiz.xlsx` containing student ID, per-criterion awarded marks, total score, step-by-step reasoning, constructive feedback, and review flags.
+- **Grading Principle**: Pure Complete Rubric Evaluation (CRE) — ignore missing headers, `void main()`, dropped semicolons, unmatched braces, or variable naming quirks, and award marks based on demonstrated algorithmic intent.
