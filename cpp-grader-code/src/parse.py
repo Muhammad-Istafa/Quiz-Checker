@@ -248,9 +248,18 @@ def parse_and_validate_output(
 
     # Compute total strictly in Python code outside LLM (Pathak et al. CRE)
     # Support both marks_awarded and awarded transparently
+    for c in raw_data.get("criteria", []):
+        if isinstance(c, dict):
+            m = float(c.get("marks_awarded", c.get("awarded", 0.0)))
+            c["marks_awarded"] = m
+            c["awarded"] = m
+            comm = c.get("justification", c.get("comment", ""))
+            c["justification"] = comm
+            c["comment"] = comm
+
     computed_total = round(
         sum(
-            float(c.get("marks_awarded", c.get("awarded", 0.0)))
+            float(c.get("marks_awarded", 0.0))
             for c in raw_data.get("criteria", [])
         ) * 2
     ) / 2.0
