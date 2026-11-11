@@ -34,8 +34,8 @@ class TestGraderPipeline(unittest.TestCase):
             "Let's think step-by-step.\n"
             "Earlier reference: {\"dummy\": 123}.\n"
             "Now grading:\n"
-            "{\"criteria\": [{\"id\": \"c1\", \"marks_awarded\": 4.0, \"justification\": \"Correct loop\", \"evidence_lines\": [2]}, "
-            "{\"id\": \"c2\", \"marks_awarded\": 3.0, \"justification\": \"Correct output\", \"evidence_lines\": [2]}], "
+            "{\"criteria\": [{\"id\": \"c1\", \"marks_awarded\": 4.0, \"justification\": \"Correct loop construct\", \"evidence_lines\": [2]}, "
+            "{\"id\": \"c2\", \"marks_awarded\": 3.0, \"justification\": \"Correct output format\", \"evidence_lines\": [2]}], "
             "\"needs_human_review\": false}\n"
             "Feedback:\nGood job!"
         )
@@ -51,7 +51,7 @@ class TestGraderPipeline(unittest.TestCase):
         bad_json = (
             "Let's think step-by-step.\n"
             "{\"criteria\": [{\"id\": \"c1\", \"marks_awarded\": 5.5, \"justification\": \"Loop logic exceeded\", \"evidence_lines\": [2]}, "
-            "{\"id\": \"c2\", \"marks_awarded\": 3.0, \"justification\": \"Output correct\", \"evidence_lines\": [2]}], "
+            "{\"id\": \"c2\", \"marks_awarded\": 3.0, \"justification\": \"Output formatting correct\", \"evidence_lines\": [2]}], "
             "\"needs_human_review\": false}"
         )
         res = parse_and_validate_output(bad_json, self.rubric, self.student_code_lineno)
@@ -63,8 +63,8 @@ class TestGraderPipeline(unittest.TestCase):
         """Supports both marks_awarded/awarded and justification/comment."""
         valid_completion = (
             "Let's think step-by-step.\n"
-            "{\"criteria\": [{\"id\": \"c1\", \"marks_awarded\": 4.0, \"justification\": \"Loop valid\", \"evidence_lines\": [2]}, "
-            "{\"id\": \"c2\", \"awarded\": 3.0, \"comment\": \"Output valid\", \"evidence_lines\": [2]}], "
+            "{\"criteria\": [{\"id\": \"c1\", \"marks_awarded\": 4.0, \"justification\": \"Loop construct valid\", \"evidence_lines\": [2]}, "
+            "{\"id\": \"c2\", \"awarded\": 3.0, \"comment\": \"Output format valid\", \"evidence_lines\": [2]}], "
             "\"needs_human_review\": false}"
         )
         res = parse_and_validate_output(valid_completion, self.rubric, self.student_code_lineno)
@@ -91,8 +91,8 @@ class TestGraderPipeline(unittest.TestCase):
     def test_05_external_python_total_sum(self):
         """Total marks must be computed by code outside LLM and rounded to 0.5 increments."""
         valid_completion = (
-            "{\"criteria\": [{\"id\": \"c1\", \"marks_awarded\": 3.5, \"justification\": \"Partial loop\", \"evidence_lines\": [2]}, "
-            "{\"id\": \"c2\", \"marks_awarded\": 2.0, \"justification\": \"Partial output\", \"evidence_lines\": [2]}], "
+            "{\"criteria\": [{\"id\": \"c1\", \"marks_awarded\": 3.5, \"justification\": \"Partial loop implementation\", \"evidence_lines\": [2]}, "
+            "{\"id\": \"c2\", \"marks_awarded\": 2.0, \"justification\": \"Partial output display\", \"evidence_lines\": [2]}], "
             "\"needs_human_review\": false}"
         )
         res = parse_and_validate_output(valid_completion, self.rubric, self.student_code_lineno)
@@ -102,7 +102,7 @@ class TestGraderPipeline(unittest.TestCase):
     def test_06_absence_marker_requirement(self):
         """Deductions made without evidence lines must contain an absence explanation."""
         bad_deduction = (
-            "{\"criteria\": [{\"id\": \"c1\", \"marks_awarded\": 2.0, \"justification\": \"Incorrect execution\", \"evidence_lines\": []}, "
+            "{\"criteria\": [{\"id\": \"c1\", \"marks_awarded\": 2.0, \"justification\": \"Incorrect loop execution\", \"evidence_lines\": []}, "
             "{\"id\": \"c2\", \"marks_awarded\": 3.0, \"justification\": \"Valid display output\", \"evidence_lines\": [2]}], "
             "\"needs_human_review\": false}"
         )
