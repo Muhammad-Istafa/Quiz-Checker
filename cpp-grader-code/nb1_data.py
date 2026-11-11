@@ -4995,6 +4995,8 @@ assert _ev_checked >= 50, f"Insufficient evidence lines checked: {_ev_checked}"
 print(f"  [PASS] 11. Evidence check verified on {_ev_checked} cited lines")
 
 # 12. No program leakage: no program_id in two splits
+all_val_pids = all_val_seen_pids | all_val_unseen_pids
+all_unseen_pids = all_val_unseen_pids | all_test_unseen_pids
 assert len(all_train_pids & all_val_pids) == 0
 assert len(all_train_pids & all_test_seen_pids) == 0
 assert len(all_val_pids & all_test_seen_pids) == 0
