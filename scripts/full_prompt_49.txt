@@ -1,0 +1,163 @@
+<USER_REQUEST>
+# Agent Prompt (Round 3): Implement & Verify the Literature-Grounded C++ Rubric Auto-Grader (Real-Data First + Local Qwen Teacher Distillation + CRE + NCA Alignment)
+
+You are an engineering agent working inside `kaggle_bundle/`. Your task is to upgrade, verify, and prepare the complete v2 C++ quiz auto-grader pipeline (`n0_audit` → `nb1_data` → `nb1b_teacher` → `nb2_train` → `nb2b_nca` → `nb3_infer`) so that it can be executed cleanly on Kaggle.
+
+Read and obey every rule below. Where a rule says "STOP AND ASK", halt and ask me instead of guessing.
+
+---
+
+## 0. Non-Negotiable Operating Rules (Corrections of Round 1 & Round 2 Mistakes)
+
+1. **Zero Fabricated or Unmeasured Numbers**:
+   - NEVER invent, extrapolate, or hardcode accuracy, QWK, MAE, leniency, dataset counts, pass rates, or training runtimes (e.g., never write "~3.5 hours" or "eliminates the generalisation gap").
+   - Every metric or runtime not produced by an actual Python execution in this session MUST be written literally as `"NOT_MEASURED"`.
+   - Smoke-test runs must be labelled `"SMOKE_ONLY"`.
+   - Every item in `VERIFICATION.md` must carry exactly one status:
+     - `Designed` (described only)
+     - `Implemented` (code written; syntax-checked or mirrored in JS only; Python not executed)
+     - `Executed` (Python executed, output file inspected)
+     - `Verified` (Python executed and checked against an independent assertion)
+
+2. **Absolute Firewall Around FAST NUCES Quiz 3**:
+   - `Quiz3-1E.zip` (`question.txt`, `rubric.txt`, `Quiz3_1E.xlsx`), `quiz3_raw/`, `quiz3_clean/`, and `quiz3_split.json` are **strictly held-out evaluation benchmarks**.
+   - NEVER use Quiz 3 student code, problem text, denomination sets, or rubric wording in `nb1_data.py`, `src/references.py`, `src/mutations.py`, teacher distillation (`nb1b_teacher.ipynb`), SFT (`nb2_train.ipynb`), or NCA (`nb2b_nca.ipynb`).
+   - Run a mechanical contamination scan (normalised-code SHA-256 hash + token Jaccard >= 0.8 + substring scan) across all generated splits before training. Any match is a **STOP**.
+
+3. **Pure Logical Rubric Grading — Zero Compilation Gate or Syntax/Spelling/Naming Penalty**:
+   - Following Pathak et al. ("Rubric Is All You Need", 2025 — Complete Rubric Evaluation / CRE, `github.com/BITS-Pilani-GRC/Rubric-Grader`), the model grades **exclusively on logical correctness and algorithmic intent against the question-specific rubric**.
+   - **NO compilation condition exists for grading.** Student code that fails `g++` due to missing `#include` headers, missing semicolons `;`, `void main()`, undeclared types, mismatched brackets, or exam-environment transcription noise MUST still earn full marks for every rubric criterion whose logical intent is satisfied.
+   - **Variable names** (single-letter `a, b`, Urdu transliterations `rakam, baki`, arbitrary names), **spelling mistakes** (in identifiers, comments, or `cout` strings), and **syntactic/control-flow variations** (`for` vs `while`, array lookup vs division/modulo, `if-else` vs `switch` vs ternary, `printf` vs `cout`) MUST NEVER be penalised.
+
+4. **Fix All 4 Latent Bugs Left in Round 2**:
+   - **Bug Fix 1 (`src/parse.py`)**: NEVER clamp out-of-range marks into `[0, max_marks]`. Extract the last balanced JSON block, compute `total_marks = sum(c.marks_awarded)` in Python outside the LLM (Pathak et al. CRE), and if any `marks_awarded < 0` or `> max_marks`, increment `out_of_range_count` and mark `is_valid = False`.
+   - **Bug Fix 2 (`nb2_train.ipynb`, `nb1b_teacher.ipynb`, `nb2b_nca.ipynb`, `nb3_infer.ipynb`)**: Explicitly pass `enable_thinking=False` inside `tokenizer.apply_chat_template(...)` for all `Qwen3` models so hidden `<think>...</think>` blocks never collide with our explicit `"Let's think step-by-step."` reasoning trace or truncate the terminal JSON.
+   - **Bug Fix 3 (`nb3_infer.ipynb`)**: Delete automatic `_find_adapter()` newest-file heuristics. Require an explicit config `CFG.eval_arm ∈ {"A0", "A1", "A2", "A3"}` and `CFG.adapter_path`, and write both into every output JSON and CSV.
+   - **Bug Fix 4 (`README.md`)**: Resolve the contradiction between Section 4.C (Teacher Distillation) and Section 7 (No-Teacher `trace_builder.py`) so the entire codebase and documentation consistently implement the **Ground-Truth Anchored Local Qwen Teacher Distillation + NCA** architecture, with deterministic `trace_builder.py` retained only as a fallback/ablation verifier.
+
+---
+
+## 1. Data Architecture: 80% Real C/C++ Student Repositories + 20% Real-Aligned Synthetic Data (`nb1_data.py`, `src/real_sources.py`, `src/references.py`, `src/mutations.py`)
+
+### 1.1 Real Student Code Backbone (~80% of Training Set)
+Write a resumable ingestion module in `src/real_sources.py` (with offline Kaggle dataset path fallback) that ingests real student submissions from:
+1. **`C-Pack-IPAs` (`https://github.com/pmorvalho/C-Pack-IPAs`)**:
+   - Ingest introductory tasks (`Lab02`–`Lab04`: conditionals, loops, digit/number manipulation, arrays).
+   - Use `correct_submissions/` (full marks), `semantically_incorrect_submissions/` (partial/zero marks based on which logical criterion failed), and **`syntactically_incorrect_submissions/`** (inspect logical criteria via AST/pattern checkers so programs with valid logic but broken syntax receive **full logical credit**).
+2. **`ITSP` (`https://github.com/jyi/ITSP`)**:
+   - Ingest the 661 real IIT Kanpur CS101 student programs across the 10 introductory lab assignments.
+   - Pair each `buggy` student submission with its `fixed` counterpart. Compute the line-level diff (`difflib` / AST diff) between `buggy` and `fixed` to provide exact ground-truth `evidence_lines` and fault descriptions for the Teacher model.
+3. **`IntroClass` (`https://github.com/BugZooOrg/IntroClass`)**:
+   - Ingest `digits`, `median`, `smallest`, `grade` for training/validation, and hold out `checksum` and `syllables` completely as `test_unseen_real_tasks`.
+4. **C++ Idiom Pool (`IBM Project CodeNet` AOJ `ITP1` C++ subset or `RunBugRun` C++ subset)**:
+   - Include real C++ (`.cpp`) student submissions using `cin`, `cout`, `std::vector`, `std::string`, and `using namespace std;` across 6–10 CS1 problems so the model is fluent in C++ I/O and STL syntax in addition to C99/C11 control flow.
+
+### 1.2 AST + CFG Deduplication & Multi-Paradigm Reference Pool (Nagy 2023 + Koutcheme et al. 2026)
+- Following Koutcheme et al. (`cip25-aiep`) and Peter Nagy (`Deep-Grader`, 2023):
+  - Normalise every student program's AST (stripping comments, whitespace, and normalising local identifier names) and compute a **Structural Fingerprint** combining AST node types, Control Flow Graph (CFG) loop/branch sequence (`for`, `while`, `do-while`, `if-else`, `switch`, recursion), and Data Flow Graph (DFG) accumulator patterns.
+  - Deduplicate submissions by normalised AST hash.
+  - For every question/task, maintain **at least 4 structurally distinct verified reference solutions** in `src/references.py` spanning different control-flow families (e.g., division/modulo arithmetic, array + `for` loop, `while` subtraction loop, modular helper function).
+
+### 1.3 Real-Aligned Synthetic Supplement (Capped at <= 20% of Training Set)
+Use `src/mutations.py` **only** to align synthetic examples with real classroom artefacts:
+- **Category A — Label-Preserving Immunity Transforms (Retain 100% of Original Logical Marks)**:
+  1. **Syntax-Breakage Immunity**: Take valid multi-paradigm solutions and strip `#include <iostream>`, remove `using namespace std;`, change `int main()` to `void main()`, delete 1–3 semicolons `;`, or prepend raw student roll-number/name headers (`Name: ... Roll No: 25F-XXXX`). Marks MUST remain 100% unchanged.
+  2. **Naming & Spelling Immunity**: Rename variables to single letters, camelCase, snake_case, transliterated Urdu student variable names (`rakam, baki, adad, hasil`), or misspelled identifiers (`ammount, cunter, totl`), and introduce benign typos inside `cout` prompt strings. Marks MUST remain 100% unchanged.
+  3. **Control-Flow Equivalence**: Swap `for` <-> `while`, `if-else` <-> ternary, `endl` <-> `"\n"`, array indexing <-> individual variables. Marks MUST remain 100% unchanged.
+- **Category B — Targeted Logical Defects (Deduct Marks ONLY on the Broken Logical Criterion)**:
+  - Off-by-one loop bounds, wrong arithmetic operator (`/` vs `%`, `+` vs `*`), missing state update, uninitialised accumulator, or hardcoded output.
+- **Stratification (BeGrading, Yousef et al. 2025)**:
+  - Balance every task across 4 score bands: Full Marks (25%), High-Partial (25%), Low-Partial (25%), and Zero/Stub (25%).
+  - Vary rubric total scales across tasks (`5, 7, 10, 15, 20` max marks).
+
+---
+
+## 2. Prompt & Schema Specification (`src/prompts.py`, `src/schema.py`, `src/parse.py`)
+
+### 2.1 Complete Rubric Evaluation (CRE) Prompt (`src/prompts.py`)
+Combine Pathak et al.'s CRE prompt (`BITS-Pilani-GRC/Rubric-Grader`) with Koutcheme et al.'s 3-step template (`KoutchemeCharles/cip25-aiep`):
+- **System Prompt**:
+  - Instructs the model to act as an expert C++ university instructor performing **Complete Rubric Evaluation (CRE)** across the entire question-specific rubric in a single pass.
+  - Explicitly mandates:
+    1. *"Evaluate the code strictly on logical correctness and algorithmic intent."*
+    2. *"Ignore all syntax errors, compilation errors, missing headers, missing semicolons, variable naming choices, and spelling mistakes. Treat any syntax error as valid syntax and infer the student's logical flow and intention."*
+    3. *"Any valid algorithmic approach (loops, arrays, arithmetic division/modulo, conditionals, helper functions) that satisfies a criterion's logical goal earns full marks for that criterion."*
+- **User Prompt**:
+  - Problem description
+  - Question-Specific Rubric (criterion ID, description of logical goal, `max_marks`)
+  - Optionally 1–2 structurally distinct reference solutions (controlled by ablation flag `INCLUDE_REFERENCE`)
+  - Student C++ submission with 1-indexed line numbers (`1: ...`, `2: ...`).
+- **Assistant Output (3-Step Format)**:
+  1. `Let's think step-by-step.` followed by one reasoning paragraph per rubric criterion in exact rubric order: stating the requirement, citing exact student code line numbers (`line X`), explicitly pardoning any syntax/naming/spelling quirks on those lines, and stating the criterion verdict and score.
+  2. A single JSON block conforming to `schema.py` (`criteria`: list of `{id, marks_awarded, max_marks, evidence_lines, justification}`, plus `needs_human_review: bool`).
+  3. `Feedback:` A 3-sentence constructive sandwich feedback block: (a) praise all satisfied logical criteria, (b) explain at most the first two failed logical criteria in rubric order, (c) end with an encouraging sentence.
+
+---
+
+## 3. Two-Stage Distillation & Alignment Pipeline (`nb1b_teacher.ipynb` → `nb2_train.ipynb` → `nb2b_nca.ipynb`)
+
+### 3.1 Notebook 1B: Ground-Truth Anchored Teacher Generation (`notebooks/nb1b_teacher.ipynb`)
+- Load the Teacher Model $\pi_\tau$: `Qwen/Qwen2.5-Coder-14B-Instruct` (or `Qwen/Qwen3-14B` with `enable_thinking=False`) in 4-bit NF4 on Kaggle $2\times\text{T4}$.
+- For each training/validation record $(d^i, s^i, r^i)$ with known ground-truth criterion marks $g_{\text{true}}^i$ and diff/mutation provenance:
+  - Prompt $\pi_\tau$ with $(d^i, s^i, r^i)$ **plus** a ground-truth instructor note specifying the exact marks $g_{\text{true}}^i$ and which lines contain the logical bug or syntax/naming transform.
+  - Generate $C_O = y_{\text{win}}^i = (t_\tau^i, g_\tau^i, f_\tau^i)$ via greedy decoding (`do_sample=False`).
+- **Verification Gate**: Automatically validate every generated $C_O$:
+  1. `parse_and_validate_output(C_O)` succeeds with `is_valid == True`.
+  2. Every criterion mark in $g_\tau^i$ equals $g_{\text{true}}^i$.
+  3. Every line number in `evidence_lines` exists in $s^i$.
+  4. Reasoning text $t_\tau^i$ contains no syntax-penalty phrases.
+- Strip the ground-truth instructor note from the prompt and save the clean `(Student Prompt, Teacher Output C_O)` pairs to `cpp-grader-data-v2/train_sft_v2.jsonl` (and JSON-only targets to `train_sft_v2_direct.jsonl`).
+
+### 3.2 Notebook 2: Stage 1 Student SFT (`notebooks/nb2_train.ipynb`)
+- Student Model $\pi_\theta$: `Qwen/Qwen3-4B` (with `enable_thinking=False` locked) or `Qwen/Qwen2.5-Coder-3B-Instruct`.
+- 4-bit NF4 QLoRA, `fp16` compute on T4, gradient checkpointing, completion-only loss masking (loss computed only on assistant output tokens $C_O$).
+- Verify under the Qwen tokenizer that `max_seq_length` exceeds the p99 of `prompt + C_O` and drop any record whose JSON target is truncated.
+- Select the best checkpoint at each epoch using generated mark agreement (QWK + Exact Match + Leniency $l_n$) on a fixed 100-example subset of `val_unseen`.
+
+### 3.3 Notebook 2B: Stage 2 Student vs. Teacher NCA Alignment (`notebooks/nb2b_nca.ipynb`)
+- Following Koutcheme et al. (SIGCSE 2026) and Chen et al. (NeurIPS 2024):
+  1. Load the trained Stage 1 SFT Student ($\pi_{\text{sft}}$, Arm A2) and run greedy decoding on the training/validation pool to produce the Student's outputs $C = y_{\text{lose}}^i = \pi_{\text{sft}}(x^i)$.
+  2. Filter for examples where the Student's output $C$ disagrees with the Teacher's ground-truth marks ($g_{\text{sft}}^i \neq g_\tau^i$, prioritizing false penalties on valid alternative approaches or syntax-broken code).
+  3. Form preference triples $(x^i, y_{\text{win}}^i = C_O, y_{\text{lose}}^i = C)$.
+  4. Train Arm A3 ($\pi_{\text{nca}}$) using TRL's `DPOTrainer` with `DPOConfig(loss_type="nca_pair", beta=0.1, learning_rate=5e-6, num_train_epochs=1)` on 2,000–5,000 pairs.
+
+---
+
+## 4. Phase 4: Evaluation & Diagnostics (`notebooks/nb3_infer.ipynb`)
+
+Evaluate the 4 Experimental Arms with **explicit config selection** (`CFG.eval_arm` and `CFG.adapter_path`):
+- **Arm A0**: Legacy v1 adapter evaluated with v1 prompt and v1 parser (baseline anchor).
+- **Arm A1**: v2 data, Direct JSON target (`train_sft_v2_direct.jsonl`).
+- **Arm A2**: v2 data, Stage 1 SFT on Teacher-distilled 3-step output $C_O$ (`train_sft_v2.jsonl`).
+- **Arm A3**: Stage 2 NCA-aligned Student trained on the difference between Teacher $C_O$ and Student $C$.
+- **Zero-Shot CRE Baseline (`ZS-CRE-4B`)**: Base `Qwen3-4B` with the v2 CRE prompt on Quiz 3 only (cheap anchor).
+
+### Evaluation Datasets:
+- `val_unseen`, `test_seen`, `test_unseen_synth`, `test_unseen_real_tasks` (`checksum`, `syllables`).
+- **FAST NUCES Quiz 3**: `dev (23)`, `test (23)`, `all (46)` (evaluated on both `quiz3_raw` and header-normalised `quiz3_clean`).
+
+### Required Metrics (From Pathak et al. 2025, Diaconu et al. 2026, Koutcheme et al. 2026):
+1. **Format Compliance**: Parse failure count, non-termination count, out-of-range mark count (with 0 clamping).
+2. **Score Agreement**: Exact Match %, within $\pm 3.3\%$ and $\pm 10\%$ of max marks, MAE, Normalised MAE, QWK (native scale and 5 percentile bins $\kappa_B$), Pearson $r$, Spearman $r_s$, Kendall $\tau_b$, Intraclass Correlation (`ICC3`).
+3. **Strictness & Bias**: Signed error and Pathak et al.'s **Leniency ($l_n \in [-1, 1]$)** (target within $\pm 0.10$ on dev).
+4. **False-Penalty Diagnostics**:
+   - Overall False-Penalty Rate on full-mark student submissions.
+   - **Syntax-Induced False-Penalty Rate** on non-compiling Quiz 3 submissions to prove compilation errors are not penalised.
+   - False-Credit Rate on zero/low-mark submissions.
+5. **Per-Criterion Accuracy & Confusion Matrices** (with the A2 schema-matching fix verified).
+6. **Degeneracy & Determinism (Diaconu et al. 2026)**: Prediction variance per question, plus greedy reproducibility across a 30-example subset under shuffled batch order.
+7. **Review-Flag Triage Curve**: Coverage vs. Accuracy curve when routing `needs_human_review == True` submissions to an instructor.
+8. **Statistical Tests**: 95% bootstrap CIs (resampling students) and paired Wilcoxon signed-rank tests with Holm correction across Arms A0–A3.
+
+---
+
+## 5. Deliverables & Verification Gate (`VERIFICATION.md`, `SPOTCHECK.md`, `RUN_PLAN.md`)
+
+1. Produce/update `src/prompts.py`, `src/schema.py`, `src/parse.py`, `src/references.py`, `src/mutations.py`, `src/real_sources.py`, `src/trace_builder.py`, `nb1_data.py`, and all 5 notebooks (`nb1_data.ipynb`, `nb1b_teacher.ipynb`, `nb2_train.ipynb`, `nb2b_nca.ipynb`, `nb3_infer.ipynb`).
+2. Write `VERIFICATION.md` documenting V1–V8 with exact file and line numbers.
+3. Write `EXPERIMENTS.md` with pre-formatted tables for Arms A0–A3 where every unexecuted cell is literally `"NOT_MEASURED"`.
+4. Write `RUN_PLAN.md` and `KAGGLE_RUN.md` with exact step-by-step Kaggle execution instructions.
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-11-10T01:01:39+05:00.
+</ADDITIONAL_METADATA>

@@ -105,19 +105,36 @@ To ensure the model learns diverse programming idioms and real-world defect patt
 2. **Execution Report Dropout**: Randomly set `execution_report = {"available": False}` for 35% of synthetic training samples to make the model robust to offline static grading.
 3. **AST-Level Defect Ingestion**: Replace literal string replacements with AST-level pattern insertions matching real student errors (e.g., integer truncation, uninitialized variables, inverted conditions).
 
-### C. Retiring Zero-Shot Baselines & Implementing Teacher Distillation (SIGCSE 2026)
+### C. Label-Conditioned Rationale Generation & NCA Preference Alignment (SIGCSE 2026)
 
 - **Retire `ZS-4B` and `ZS-8B` from NB3**:
   - `ZS-8B` collapsed on real student data (2.17% exact match) and caused GPU memory overhead on Kaggle T4 instances.
-  - Removing zero-shot passes reduces NB3 evaluation runtime by ~60% while eliminating OOM risks.
-- **Implement Teacher-Student Distillation**:
+  - Retain `ZS-CRE-4B` as a lightweight direct zero-shot Complete Rubric Evaluation baseline.
+- **Implement Label-Conditioned Rationale Generation**:
   - Following the framework in *Koutcheme, Woodrow, & Piech (SIGCSE 2026)*:
     1. **Structured Rubric Prompt**: The model is prompted with a 3-step structured format:
-       - `Step 1 (Reasoning)`: Chain-of-thought analysis reflecting on each rubric criterion in order.
-       - `Step 2 (Rubric Grading)`: Structured JSON mark assignment.
+       - `Step 1 (Reasoning)`: Chain-of-thought analysis reflecting on each rubric criterion in order (`"Let's think step-by-step."`).
+       - `Step 2 (Rubric Grading)`: Structured JSON mark assignment with external Python total summation (zero clamping).
        - `Step 3 (Diagnostic Feedback)`: Actionable feedback explaining errors and strengths.
-    2. **Supervised Fine-Tuning (SFT Distillation)**: A large teacher model generates reasoning, grading, and feedback tuples $(t^\tau, g^\tau, f^\tau)$ over diverse programs to train the student model (`Qwen3-4B` or `Qwen-2.5-Coder-3B`).
-    3. **Preference Alignment (NCA / DPO)**: Pairs are formed using teacher outputs as $y_{\text{win}}$ and student SFT outputs as $y_{\text{lose}}$, optimized via Noise Contrastive Alignment (NCA) loss to refine boundary judgments without degradation.
+    2. **Ground-Truth Anchoring**: A large local open-weights teacher model (`Qwen2.5-Coder-14B-Instruct` or `Qwen3-14B` in 4-bit NF4) receives verified ground-truth criterion marks and generates high-capacity reasoning traces conditioned on the gold labels.
+    3. **Deterministic Fallback**: `src/trace_builder.py` is retained as an offline deterministic trace generator and ablation verifier.
+    4. **Preference Alignment (NCA / DPO)**: Pairs are mined from student-gold disagreements, optimized via Noise Contrastive Alignment (NCA) loss in `nb2b_nca.ipynb` to eliminate false penalties without degradation.
+
+### D. Real Student Repository Share & Experimental Arms
+
+To systematically evaluate the impact of real classroom code versus synthetic mutations, the pipeline supports a configurable real-repo share (`CFG.real_repo_share` in `nb1_data.py`):
+- **Arm A1-0%**: 0% real student code, 100% synthetic mutations.
+- **Arm A1-20%**: 20% real student code, 80% synthetic mutations.
+- **Arm A1-50%**: 50% real student code, 50% synthetic mutations.
+- **Arm A1-80%**: 80% real student code, 20% synthetic mutations (Default training backbone).
+- **Arm A2**: Supervised Fine-Tuning with label-conditioned reasoning traces (14B Teacher / Trace Builder).
+- **Arm A3**: Noise Contrastive Alignment (NCA) preference alignment over Arm A2.
+
+### E. Verification & Quality Gates
+
+1. **Preflight Python Unit Tests**: Executed as the first cell of `n0_audit.ipynb` and `nb1_data.ipynb`, halting execution immediately with `AssertionError` if any test fails. Covers balanced JSON parsing, zero clamping, dual-field support, pure-logic evaluation, and external Python summation. Local JavaScript test suites count as "logic mirrored, not run".
+2. **Kaggle Repository Delivery & Licensing**: Real student repositories are delivered to Kaggle via a private dataset `cpp-grader-repos` (mounted at `/kaggle/input/cpp-grader-repos/` with fallback to `repos/`). Licences: `IntroClass` (MIT License, permissive open-source), `C-Pack-IPAs` (academic and research use only, INESC-ID / IST Lisbon), and `ITSP` (academic research license, IIT Kanpur CS101). The FAST NUCES Quiz 3 benchmark is strictly firewalled in a separate dataset (`cpp-grader-quiz3-eval`) and never co-packaged with training data.
+3. **Calibrated Syntax Policy from Quiz 3 Dev**: In accordance with Quiz 3 dev audit findings (A3: 26.1% syntax error rate, A8: instructor awards full marks to non-compiling code with sound logic), the pipeline default is `syntax_error_policy = "option_a_instructor_aligned"` (Pure CRE: zero compilation penalty on logical rubric criteria).
 
 ---
 
@@ -149,9 +166,11 @@ kaggle_bundle/
 │   └── data_manifest.json        # Checksums, split counts & schema locks
 ├── notebooks/                    # Jupyter notebooks for Kaggle runs
 │   ├── n0_audit.ipynb            # Interactive dataset & environment audit
-│   ├── nb1_data.ipynb            # Synthetic data generation & caching
-│   ├── nb2_train.ipynb           # QLoRA fine-tuning on Qwen3-4B
-│   └── nb3_infer.ipynb           # Inference, bootstrap CIs & real holdout evaluation
+│   ├── nb1_data.ipynb            # Real student repo + synthetic data generation
+│   ├── nb1b_teacher.ipynb        # Local Qwen 14B Teacher Distillation (4-bit NF4)
+│   ├── nb2_train.ipynb           # QLoRA fine-tuning on Qwen3-4B (Arm A1/A2)
+│   ├── nb2b_nca.ipynb            # Noise Contrastive Alignment (Arm A3 NCA)
+│   └── nb3_infer.ipynb           # Multi-arm evaluation, bootstrap CIs & real holdout evaluation
 ├── Quiz3-1E.zip                  # Real student evaluation bundle (FAST NUCES)
 │   ├── Quiz3_1E.xlsx             # Real student code & ground-truth teacher marks
 │   ├── question.txt              # Currency note calculation problem statement
@@ -185,18 +204,26 @@ The v2 upgrade directly resolves the generalization gap between synthetic test d
    - Every mutation records full provenance (operator ID, affected line numbers, plain-text descriptions) to ground reasoning traces.
 3. **Execution Report Dropout (35%)**:
    - Training prompts randomly drop the execution block on 35% of examples, providing the exact text seen during offline grading: `Execution report: not available`.
-4. **Code-Generated Reasoning Traces (`src/trace_builder.py`)**:
-   - Three-step output format inspired by Koutcheme et al. (SIGCSE 2026):
-     - `Step 1`: Chain-of-thought analysis starting with `Let's think step-by-step.`, reflecting on each rubric criterion in order and citing line numbers.
-     - `Step 2`: Compact validated schema JSON.
-     - `Step 3`: Constructive diagnostic feedback (≤3 sentences).
-   - Strictly generated by deterministic code without external LLMs or teacher models.
-5. **Real Student Repository Track (`src/real_sources.py` & `SOURCES.md`)**:
-   - Ingests real introductory student C programs from the IntroClass benchmark (UC Davis) across fundamental tasks (`digits`, `median`, `smallest`), with whole tasks (`checksum`, `syllables`) held out as `test_unseen_real_tasks`.
-6. **Frozen Stratified Quiz 3 Split (`quiz3_split.json`)**:
+4. **Two-Stage Distillation & Alignment Pipeline (`nb1b_teacher.ipynb`, `nb2b_nca.ipynb`, & `src/trace_builder.py`)**:
+   - Three-step structured output format following *Koutcheme, Woodrow, & Piech (SIGCSE 2026)* and *Pathak et al. (CRE, 2025)*:
+     - `Step 1`: Chain-of-thought analysis starting with `Let's think step-by-step.`, evaluating each rubric criterion in order, citing student line numbers, pardoning syntax/naming quirks, and stating the verdict.
+     - `Step 2`: Compact validated schema JSON (`criteria` breakdown, `evidence_lines`, `needs_human_review`).
+     - `Step 3`: Constructive sandwich feedback (≤3 sentences) praising satisfied criteria first, explaining at most two logical errors, and concluding with encouragement.
+   - **Ground-Truth Anchored Local Qwen Teacher Distillation (`nb1b_teacher.ipynb`)**: A high-capacity local teacher model (`Qwen2.5-Coder-14B-Instruct` or `Qwen3-14B` in 4-bit NF4 on Kaggle 2×T4) is supplied with the verified gold criterion marks $g_{\text{true}}^i$ and diff/mutation provenance notes to produce rich, classroom-grounded reasoning traces $C_O = y_{\text{win}}^i$ passing strict automated verification gates (valid schema JSON, exact mark equality, valid evidence line bounds, and zero syntax-penalty phrases).
+   - **Deterministic Fallback & Ablation Verifier (`src/trace_builder.py`)**: Programmatic trace generator creating formulaic reasoning traces directly from code checkers, retained as a deterministic fallback and ablation verifier (Arm A1 direct JSON vs. Arm A2 reasoning traces).
+   - **Stage 2 NCA Preference Alignment (`nb2b_nca.ipynb`)**: Aligns the Stage 1 SFT student model using Noise Contrastive Alignment (NCA loss, Chen et al. NeurIPS 2024; $\beta=0.1$, $\text{lr}=5\times 10^{-6}$) on $(x, y_{\text{win}}=C_O, y_{\text{lose}}=C_{\text{sft}})$ disagreement triples to suppress false penalties on non-compiling student code and alternative algorithmic designs.
+5. **Real Student Repository Backbone (~80% of Training Set) (`src/real_sources.py` & `SOURCES.md`)**:
+   - Ingests real undergraduate student C/C++ programs from:
+     - `C-Pack-IPAs` (Lab02–Lab04: conditionals, loops, digit manipulation, arrays), including correct, semantically incorrect, and syntactically incorrect programs (which receive full logical marks for valid intent under pure CRE).
+     - `ITSP` (IIT Kanpur CS101: 661 programs across Lab-3 to Lab-12), extracting buggy/fixed program pairs and deriving exact `evidence_lines` and defect descriptions via AST/line diffs.
+     - `IntroClass` (`digits`, `median`, `smallest`, `grade` for training/validation, holding out `checksum` and `syllables` strictly for `test_unseen_real_tasks`).
+     - Real C++ Idiom Pool (`cin`, `cout`, `std::vector`, `std::string`, `using namespace std;`).
+   - Supplemented by real-aligned synthetic examples (`src/mutations.py`, capped at $\le 20\%$ of training set) featuring syntax-breakage, naming, spelling, and control-flow immunity transforms.
+6. **Frozen Stratified Quiz 3 Split (`quiz3_split.json`) & Mechanical Firewall**:
    - Stratified the 46 undergraduate student submissions into `dev` (23) and `test` (23) by instructor mark and hashed student ID. The `test` split is strictly held out for final reporting.
-7. **Option A Labeling Policy**:
-   - Following *Rubric Is All You Need* (BITS Pilani), logic criteria evaluate algorithmic intent independently of syntax errors, and display output criteria award credit for any recognizable presentation of results.
+   - Mechanical contamination scan (normalized-code SHA-256 hash + token Jaccard $\ge 0.80$ + substring scan) enforced before training to guarantee zero Quiz 3 leakage.
+7. **Pure Logical Rubric Evaluation (Pathak et al. CRE, 2025)**:
+   - Logic criteria evaluate algorithmic intent independently of syntax errors. Zero compilation gate exists for logical rubric marks; missing `#include`, missing semicolons, `void main()`, undeclared types, Urdu transliterated identifiers (`rakam, baki`), and output string typos receive 100% full credit if algorithmic logic is satisfied. Totals are computed strictly in Python code outside the LLM.
 8. **Experimental Arm Matrix (`EXPERIMENTS.md` & `RUN_PLAN.md`)**:
-   - Structured tracking across Arms A0 (baseline adapter), A1 (v2 data + direct JSON), A2 (v2 data + reasoning trace), and A3 (NCA preference alignment via `nb2b_nca.ipynb`).
+   - Structured tracking across Arms A0 (legacy baseline adapter), A1 (v2 data + direct JSON), A2 (v2 data + Stage 1 SFT on teacher-distilled 3-step output), and A3 (Stage 2 NCA preference alignment via `nb2b_nca.ipynb`), plus Zero-Shot CRE Baseline (`ZS-CRE-4B`).
 

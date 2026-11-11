@@ -70,5 +70,10 @@ function pyToIpynb(pyPath, ipynbPath) {
     console.log(`Converted ${pyPath} -> ${ipynbPath} (${cells.length} cells)`);
 }
 
-pyToIpynb('cpp-grader-code/nb1_data.py', 'notebooks/nb1_data.ipynb');
+module.exports = { pyToIpynb };
+
+if (require.main === module) {
+    pyToIpynb('cpp-grader-code/nb1_data.py', 'notebooks/nb1_data.ipynb');
+    pyToIpynb('cpp-grader-code/n0_audit.py', 'notebooks/n0_audit.ipynb');
+}
 

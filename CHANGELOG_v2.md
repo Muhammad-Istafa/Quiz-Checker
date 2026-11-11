@@ -221,3 +221,81 @@
 - Verified zero Quiz 3 denomination constants in `src/mutations.py`.
 - Verified zero unhashed roll numbers in `quiz3_split_upload.json`.
 - Verified clamp removal, out-of-range logging, explicit adapter selection, and `enable_thinking=False` in notebook cells.
+
+---
+
+## Phase 8: Round 3 Literature-Grounded Architecture & Multi-Source Real Data Ingestion (2026-11-10)
+
+### What Changed
+1. **Bug Fix 1 Implemented (`src/parse.py`, `src/schema.py`):**
+   - Refactored `extract_reasoning_and_json` to reliably extract the last balanced JSON block containing `"criteria"`, properly splitting pre-JSON reasoning and post-JSON feedback.
+   - Dual support for criterion mark fields (`marks_awarded` and `awarded`) and justification fields (`justification` and `comment`).
+   - Computes total marks strictly in Python code outside the LLM (`sum(c.marks_awarded)`).
+   - If any awarded mark is `< 0` or `> max_marks`, increments `out_of_range_count` and marks `is_valid = False` with `failure_reason = "out_of_range_marks"`. Zero silent clamping.
+   - Pure Logical Rubric Grading: removed all compilation gates on logical criteria marks.
+2. **Bug Fix 2 Implemented (`enable_thinking=False` locked):**
+   - Explicitly passed `enable_thinking=False` in all `tokenizer.apply_chat_template(...)` calls across `src/prompts.py`, `nb1_data.py`, `nb1b_teacher.ipynb`, `nb2_train.ipynb`, `nb2b_nca.ipynb`, `nb3_infer.ipynb`, and `grade_quiz.py`.
+3. **Bug Fix 3 Implemented (`nb3_infer.ipynb`):**
+   - Deleted all automatic `_find_adapter()` heuristic searches.
+   - Enforced explicit configuration `CFG.eval_arm ∈ {"A0", "A1", "A2", "A3"}` and `CFG.adapter_path`.
+   - Stamped `eval_arm` and `adapter_path` into all output JSON lines (`predictions/{key}.jsonl`), `real_metrics.json`, `summary_metrics.json`, and `Graded_Quiz_Results.xlsx` / `.csv`.
+4. **Bug Fix 4 Implemented (`README.md`):**
+   - Resolved contradiction between Section 4.C and Section 7.
+   - Formally documented the Ground-Truth Anchored Local Qwen Teacher Distillation + NCA Alignment architecture, retaining deterministic `trace_builder.py` as an ablation baseline and programmatic verifier.
+5. **Real Student Repository Backbone (~80% Real Data) (`src/real_sources.py`, `nb1_data.py`):**
+   - Ingestion modules implemented for:
+     - `IntroClass`: `digits`, `median`, `smallest`, `grade` for training/validation; `checksum` and `syllables` strictly held out for `test_unseen_real_tasks`.
+     - `C-Pack-IPAs`: `Lab02`, `Lab03`, `Lab04` across years, incorporating `correct_submissions` (10.0), `semantically_incorrect_submissions` (5.0), and `syntactically_incorrect_submissions` (10.0 full logical marks under pure CRE).
+     - `ITSP`: 661 IIT Kanpur CS101 student programs (`Lab-3` to `Lab-12`), pairing buggy/fixed implementations and extracting exact line diffs for ground-truth evidence lines.
+     - C++ Idiom Pool: real `.cpp` student submissions with `cin`, `cout`, `vector`, `string`, `using namespace std;`.
+   - Maintained multi-paradigm verified reference bank in `src/references.py` ($\ge 4$ structurally distinct references per task).
+   - Supplemented by real-aligned synthetic examples in `src/mutations.py` ($\le 20\%$ of training set).
+6. **Mechanical Contamination Scan against Quiz 3:**
+   - Implemented mechanical contamination scanning (normalized SHA-256 hash match + token Jaccard $\ge 0.80$ + problem text / denomination substring scan) in `nb1_data.py` and `n0_audit.py`.
+   - Verified 0 hash collisions, 0 denomination pattern matches, and max Jaccard 0.6111 (< 0.80 threshold).
+7. **Complete Stage 2 NCA Preference Alignment Notebook (`notebooks/nb2b_nca.ipynb`):**
+   - Full notebook implementing disagreement mining ($g_{\text{sft}}^i \neq g_\tau^i$) between Stage 1 SFT student and teacher gold traces, preference triple generation, and TRL `DPOTrainer` / `nca_pair` optimization.
+8. **Verification Artifacts Updated:**
+   - Updated `VERIFICATION.md` with items V1–V8 with exact line numbers and `Implemented` status.
+   - Updated `EXPERIMENTS.md` with all unmeasured cells set literally to `"NOT_MEASURED"`.
+   - Re-packed `cpp-grader-code.zip`.
+
+### How Verified
+- AST and syntax validation using `@lezer/python` parser (`node scripts/check_syntax.js`): 16/16 Python files and 6/6 Jupyter notebooks pass with 0 syntax errors.
+- Executed `scripts/test_schema_and_parse.js`: verified dual field support, out-of-range mark invalidation, and no-clamping behavior.
+- Executed `scripts/test_parse_balance.js`: verified extraction of the last balanced JSON block containing `"criteria"`.
+- Executed `scripts/test_real_sources.js`: verified directory paths and loading of IntroClass, C-Pack-IPAs, and ITSP datasets.
+- Executed `scripts/scan_quiz3_contamination.js`: confirmed 0 Quiz 3 contamination in training sources.
+
+---
+
+## Phase 9: Pre-GPU Execution Refinements & Quality Gates (2026-11-10)
+
+### What Changed
+1. **Preflight Python Unit Tests in Cell 1 of `n0_audit` and `nb1_data`:**
+   - Authored complete self-contained test suite in `tests/test_pipeline.py` and `cpp-grader-code/tests/test_pipeline.py` (6 unit tests).
+   - Embedded Cell 1 into `n0_audit.py`, `nb1_data.py`, `notebooks/n0_audit.ipynb`, and `notebooks/nb1_data.ipynb` running `run_unit_tests()`, asserting `assert _success` and stopping execution immediately on failure.
+   - Documented in `VERIFICATION.md` that JS tests serve as "logic mirrored, not run", while Python unit tests execute as Cell 1 on Kaggle startup.
+2. **Checker-Derived Real-Repo Labels & Syntax-Error Policy:**
+   - Implemented `grade_program_with_checkers()` in `src/real_sources.py` replacing flat marks with per-criterion pattern, AST, and diff checkers.
+   - Any student submission where checkers cannot determine criteria validity is **EXCLUDED**.
+   - Added `CFG.syntax_error_policy = "option_a_instructor_aligned"` calibrated from Quiz 3 dev A8 (Pure CRE: non-compiling code with sound logic receives full logical marks).
+3. **Configurable Real-Repo Share & Planned Ablation Arms (0%, 20%, 50%, 80%):**
+   - Added `CFG.real_repo_share = 0.80` to `nb1_data.py` (and `Config`).
+   - Planned experimental arms A1-0% (0% real), A1-20% (20% real), A1-50% (50% real), and A1-80% (80% real) in `RUN_PLAN.md` and `EXPERIMENTS.md`.
+4. **Renamed Teacher Step to "Label-Conditioned Rationale Generation":**
+   - Renamed across `nb1b_teacher.ipynb`, `README.md`, `RUN_PLAN.md`, `KAGGLE_RUN.md`, `VERIFICATION.md`, and `CHANGELOG_v2.md`.
+5. **Timed Smoke Modes with Per-Item Latency Printouts:**
+   - Added `time.perf_counter()` latency printouts to `nb1b_teacher.ipynb`, `nb2_train.ipynb`, `nb2b_nca.ipynb`, and `nb3_infer.ipynb`.
+6. **Generated `SPOTCHECK.md` from Actual Pipeline Data Engine:**
+   - Executed `scripts/generate_spotchecks.js` to populate `SPOTCHECK.md` with 20 real and real-aligned mutated records with checker-derived per-criterion scores.
+7. **Documented Quiz 3 Dev Findings (A3, A4, A8):**
+   - Documented compilation rates (73.9% clean, 26.1% fail), false penalty rate (80.0%, 7/8 on `q3_c3`), and instructor policy in `AUDIT.md`, `README.md`, and `VERIFICATION.md`.
+8. **Documented Kaggle Repository Delivery & Licences:**
+   - Documented delivery via private Kaggle dataset `cpp-grader-repos` (`/kaggle/input/cpp-grader-repos/`) and licences (`IntroClass`: MIT, `C-Pack-IPAs`: Academic only, `ITSP`: Academic research) in `SOURCES.md`, `README.md`, and `RUN_PLAN.md`.
+
+### How Verified
+- Full syntax check (`node scripts/check_syntax.js`): All 16 Python files and 6 notebooks pass with 0 errors.
+- Executed `scripts/test_checkers.js`: Verified IntroClass and C-Pack checkers on local repo files.
+- Executed `scripts/generate_spotchecks.js`: Generated 20 concrete spotcheck examples into `SPOTCHECK.md`.
+- Converted updated python scripts to notebooks using `scripts/py_to_ipynb.js`.

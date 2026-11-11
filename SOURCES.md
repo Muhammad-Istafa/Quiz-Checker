@@ -72,3 +72,34 @@ As required by **Section 4.6**, two complete repository tasks are held out and n
 2. **Score-Band Capping:** Submissions are capped per task and balanced across score tiers (0–2, 2.5–5, 5.5–8, 8.5–10) so no single repository or task dominates the training mixture.
 3. **Provenance Tagging:** All records carry `origin: "real_repo"` and `label_source: "rule"`. Metrics are evaluated and reported separately by origin, never pooled blindly with synthetic data.
 
+---
+
+## 5. Kaggle Distribution Mechanism & Licensing Compliance (Requirement 8)
+
+### How Repositories Reach Kaggle
+Real student code repositories are uploaded as a private Kaggle dataset named `cpp-grader-repos` and mounted into the Kaggle notebook session at `/kaggle/input/cpp-grader-repos/` (with local workspace fallback to `repos/`).
+Directory structure within the dataset:
+```
+cpp-grader-repos/
+├── IntroClass/             # UC Davis CS1 tasks (digits, median, smallest, grade, checksum, syllables)
+├── C-Pack-IPAs/            # IST Lisbon Lab02-Lab04 tasks (correct, semantically/syntactically incorrect)
+└── ITSP/                   # IIT Kanpur CS101 lab tasks (Lab-3 to Lab-12 buggy/correct pairs)
+```
+
+### Licences & Terms of Use
+1. **`IntroClass`**:
+   - **License:** MIT License (permissive open-source).
+   - **Citation:** Le Goues et al., "The ManyBugs and IntroClass Benchmarks for Automated Repair of C Programs", IEEE TSE 2015.
+   - **Privacy:** All student user IDs are anonymized hashes (`070455301...`).
+2. **`C-Pack-IPAs`**:
+   - **License:** Strictly for Academic & Research Use Only.
+   - **Citation:** Pedro Morvalho et al., "C-Pack-IPAs: A Dataset of Introductory Programming Assignments in C", INESC-ID / Instituto Superior Técnico, Universidade de Lisboa.
+   - **Privacy:** Anonymized student tokens (`stu_001`, `stu_002`, etc.).
+3. **`ITSP`**:
+   - **License:** Academic Research License.
+   - **Citation:** J. Yi et al., "A Dataset of Real-World Student Programming Errors", IIT Kanpur CS101.
+   - **Privacy:** Anonymized student program IDs (`270010`, `270011`, etc.).
+
+### Firewall Around FAST NUCES Quiz 3
+The FAST NUCES Quiz 3 benchmark files (`Quiz3-1E.zip`, `Quiz3_1E.xlsx`, `quiz3_split.json`) are maintained in a separate private evaluation dataset (`cpp-grader-quiz3-eval`) and are strictly excluded from `cpp-grader-repos` and any training distribution to guarantee zero training contamination.
+
