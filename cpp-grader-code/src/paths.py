@@ -40,8 +40,22 @@ def resolve_data_dir(required_file: str = MANIFEST_NAME) -> str:
     if os.path.isfile(os.path.join(legacy_local, required_file)):
         return legacy_local
 
-    found = sorted({os.path.dirname(p) for p in
-                    glob.glob(f"/kaggle/input/**/{required_file}", recursive=True)})
+    found = []
+    if os.path.isdir("/kaggle/input"):
+        try:
+            for ds in os.listdir("/kaggle/input"):
+                dsp = os.path.join("/kaggle/input", ds)
+                if os.path.isfile(os.path.join(dsp, required_file)):
+                    found.append(dsp)
+                nested = os.path.join(dsp, ds)
+                if os.path.isdir(nested) and os.path.isfile(os.path.join(nested, required_file)):
+                    found.append(nested)
+                nested_data = os.path.join(dsp, "cpp-grader-data-v2")
+                if os.path.isdir(nested_data) and os.path.isfile(os.path.join(nested_data, required_file)):
+                    found.append(nested_data)
+        except Exception:
+            pass
+    found = sorted(set(found))
     if len(found) == 1:
         return found[0]
     if len(found) > 1:

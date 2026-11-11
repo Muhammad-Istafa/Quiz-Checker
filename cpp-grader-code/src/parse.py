@@ -5,8 +5,9 @@ Extracts and validates:
 2. Schema JSON block (criteria breakdown, evidence_lines, needs_human_review)
 3. Diagnostic feedback block (optional post-JSON text)
 
-Totals are computed by code, never trusted from model text.
-Strictly reports and counts parser failures instead of silent clamping.
+Totals are computed strictly by Python code outside the LLM (Pathak et al., CRE),
+never trusted from model text.
+Strictly reports and counts parser failures and out-of-range marks instead of silent clamping.
 """
 import json
 import re
@@ -15,7 +16,6 @@ from typing import Any, Dict, List, Optional, Tuple
 from .schema import validate_grading_output
 
 _REASONING_PREFIX = "Let's think step-by-step."
-_JSON_BLOCK_RE = re.compile(r"(\{[\s\S]*\"criteria\"[\s\S]*\"needs_human_review\"[\s\S]*\})", re.DOTALL)
 
 
 class ParseResult(dict):
@@ -28,7 +28,8 @@ class ParseResult(dict):
         feedback: str,
         raw_json_str: str,
         errors: List[str],
-        failure_reason: Optional[str] = None
+        failure_reason: Optional[str] = None,
+        out_of_range_count: int = 0
     ):
         super().__init__(
             valid=valid,
@@ -37,7 +38,8 @@ class ParseResult(dict):
             feedback=feedback,
             raw_json_str=raw_json_str,
             errors=errors,
-            failure_reason=failure_reason
+            failure_reason=failure_reason,
+            out_of_range_count=out_of_range_count
         )
 
     @property
@@ -88,69 +90,66 @@ class ParseResult(dict):
     def needs_human_review(self) -> bool:
         return self["parsed"].get("needs_human_review", False) if self["parsed"] else True
 
+    @property
+    def out_of_range_count(self) -> int:
+        return self.get("out_of_range_count", 0)
 
 
 def extract_reasoning_and_json(text: str) -> Tuple[str, str, str]:
     """Split completion into (reasoning, json_str, feedback).
     
-    If format matches Phase 2:
-    - Reasoning comes before the final JSON object.
+    Robustly extracts the LAST balanced JSON object containing 'criteria'.
+    - Reasoning comes before that balanced JSON block.
     - JSON is the target grading object.
     - Feedback is any text following the closing JSON brace.
     """
     clean = text.strip()
-    
-    # Check for JSON block
-    match = _JSON_BLOCK_RE.search(clean)
-    if not match:
-        # Fallback: look for outermost curly braces containing "criteria"
-        c_pos = clean.find('"criteria"')
-        if c_pos != -1:
-            start = clean.rfind("{", 0, c_pos)
-            end = clean.rfind("}")
-            if start != -1 and end != -1 and end > start:
-                json_candidate = clean[start:end + 1]
-                reasoning = clean[:start].strip()
-                feedback = clean[end + 1:].strip()
-                return reasoning, json_candidate, feedback
+    if '"criteria"' not in clean:
         return clean, "", ""
-    
-    start_idx, end_idx = match.span(1)
-    # Extract exact balanced JSON from start_idx
-    depth = 0
-    in_string = False
-    escape = False
-    exact_end = -1
 
-    for i in range(start_idx, len(clean)):
-        char = clean[i]
-        if escape:
+    # Find all balanced JSON candidates containing '"criteria"'
+    candidates: List[Tuple[int, int, str]] = []
+    n = len(clean)
+    for i in range(n):
+        if clean[i] == '{':
+            depth = 0
+            in_string = False
             escape = False
-            continue
-        if char == "\\":
-            escape = True
-            continue
-        if char == '"':
-            in_string = not in_string
-            continue
-        if not in_string:
-            if char == "{":
-                depth += 1
-            elif char == "}":
-                depth -= 1
-                if depth == 0:
-                    exact_end = i + 1
-                    break
+            for j in range(i, n):
+                char = clean[j]
+                if escape:
+                    escape = False
+                    continue
+                if char == '\\':
+                    escape = True
+                    continue
+                if char == '"':
+                    in_string = not in_string
+                    continue
+                if not in_string:
+                    if char == '{':
+                        depth += 1
+                    elif char == '}':
+                        depth -= 1
+                        if depth == 0:
+                            sub = clean[i:j + 1]
+                            if '"criteria"' in sub:
+                                candidates.append((i, j + 1, sub))
+                            break
 
-    if exact_end != -1:
-        json_str = clean[start_idx:exact_end].strip()
-        reasoning = clean[:start_idx].strip()
-        feedback = clean[exact_end:].strip()
-    else:
-        json_str = match.group(1).strip()
-        reasoning = clean[:start_idx].strip()
-        feedback = clean[end_idx:].strip()
+    if not candidates:
+        # Fallback: search between first '{' before "criteria" and last '}'
+        c_pos = clean.rfind('"criteria"')
+        start = clean.rfind("{", 0, c_pos)
+        end = clean.rfind("}")
+        if start != -1 and end != -1 and end > start:
+            return clean[:start].strip(), clean[start:end + 1].strip(), clean[end + 1:].strip()
+        return clean, "", ""
 
+    # Pick the LAST balanced block
+    start_idx, end_idx, json_str = candidates[-1]
+    reasoning = clean[:start_idx].strip()
+    feedback = clean[end_idx:].strip()
     return reasoning, json_str, feedback
 
 
@@ -161,9 +160,9 @@ def parse_and_validate_output(
     execution_report: Optional[Dict[str, Any]] = None,
     policy: str = "option_a"
 ) -> ParseResult:
-    """Strictly parse and validate model completion.
+    """Strictly parse and validate model completion without silent clamping.
     
-    Returns a ParseResult object (supporting both dict keys and attributes):
+    Returns a ParseResult object:
       - valid / is_valid: bool
       - parsed: dict with 'criteria', 'total', 'needs_human_review' (or None)
       - reasoning: str
@@ -173,8 +172,9 @@ def parse_and_validate_output(
       - failure_reason: str (or None)
       - failure_types: list of failure reasons
       - criteria: list of criterion dicts
-      - total_marks: float
+      - total_marks: float (computed in Python outside LLM)
       - needs_human_review: bool
+      - out_of_range_count: int
     """
     reasoning, json_str, feedback = extract_reasoning_and_json(completion)
     
@@ -186,8 +186,37 @@ def parse_and_validate_output(
             feedback=feedback,
             raw_json_str="",
             errors=["No JSON object with 'criteria' found in completion"],
-            failure_reason="missing_json"
+            failure_reason="missing_json",
+            out_of_range_count=0
         )
+
+    # Pre-check for raw JSON syntax
+    try:
+        raw_data = json.loads(json_str)
+    except (json.JSONDecodeError, TypeError) as e:
+        return ParseResult(
+            valid=False,
+            parsed=None,
+            reasoning=reasoning,
+            feedback=feedback,
+            raw_json_str=json_str,
+            errors=[f"JSON parse error: {e}"],
+            failure_reason="json_syntax_error",
+            out_of_range_count=0
+        )
+
+    # Check for out-of-range marks before validation (Bug Fix 1: NEVER clamp)
+    rubric_map = {c["id"]: c for c in rubric}
+    out_of_range_count = 0
+    if isinstance(raw_data, dict) and isinstance(raw_data.get("criteria"), list):
+        for crit in raw_data["criteria"]:
+            if isinstance(crit, dict):
+                cid = crit.get("id")
+                awarded = crit.get("marks_awarded", crit.get("awarded", None))
+                if awarded is not None and isinstance(awarded, (int, float)) and not isinstance(awarded, bool):
+                    max_m = rubric_map.get(cid, {}).get("max_marks", 10.0)
+                    if awarded < 0 or awarded > max_m:
+                        out_of_range_count += 1
 
     is_valid, errors = validate_grading_output(
         json_str,
@@ -199,12 +228,12 @@ def parse_and_validate_output(
 
     if not is_valid:
         failure_type = "invalid_schema"
-        if any("JSON parse" in e for e in errors):
+        if out_of_range_count > 0 or any("not in [0," in e for e in errors):
+            failure_type = "out_of_range_marks"
+        elif any("JSON parse" in e for e in errors):
             failure_type = "json_syntax_error"
         elif any("Missing criteria" in e or "Unknown criterion" in e for e in errors):
             failure_type = "criterion_id_mismatch"
-        elif any("not in [0," in e for e in errors):
-            failure_type = "out_of_range_marks"
 
         return ParseResult(
             valid=False,
@@ -213,22 +242,27 @@ def parse_and_validate_output(
             feedback=feedback,
             raw_json_str=json_str,
             errors=errors,
-            failure_reason=failure_type
+            failure_reason=failure_type,
+            out_of_range_count=out_of_range_count
         )
 
-    # If valid, load and sum total in code
-    data = json.loads(json_str)
-    # Compute total strictly in code
-    computed_total = round(sum(float(c.get("awarded", 0.0)) for c in data.get("criteria", [])) * 2) / 2.0
-    data["total"] = computed_total
+    # Compute total strictly in Python code outside LLM (Pathak et al. CRE)
+    # Support both marks_awarded and awarded transparently
+    computed_total = round(
+        sum(
+            float(c.get("marks_awarded", c.get("awarded", 0.0)))
+            for c in raw_data.get("criteria", [])
+        ) * 2
+    ) / 2.0
+    raw_data["total"] = computed_total
 
     return ParseResult(
         valid=True,
-        parsed=data,
+        parsed=raw_data,
         reasoning=reasoning,
         feedback=feedback,
         raw_json_str=json_str,
         errors=[],
-        failure_reason=None
+        failure_reason=None,
+        out_of_range_count=0
     )
-

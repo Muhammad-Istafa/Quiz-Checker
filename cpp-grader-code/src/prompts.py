@@ -26,13 +26,13 @@ CORE GRADING PRINCIPLES
    Step 3. Constructive sandwich feedback (<= 3 sentences) highlighting satisfied criteria first, explaining at most the first two logical mistakes in an encouraging tone, and ending with a supportive closing sentence.
 
 OUTPUT SCHEMA (schema {schema_version})
-{{"criteria":[{{"id":"<id>","awarded":<number>,"comment":"<string>","evidence_lines":[<int>,...]}},...],"needs_human_review":false}}
+{{"criteria":[{{"id":"<id>","marks_awarded":<number>,"justification":"<string>","evidence_lines":[<int>,...]}},...],"needs_human_review":false}}
 
 NOTES
-- awarded must be in 0.5 increments and in [0, criterion_max].
-- total is NOT in the output; it is computed from awarded values by code.
+- marks_awarded (or awarded) must be in 0.5 increments and in [0, criterion_max].
+- total is NOT in the output; it is computed from awarded values by code outside the LLM.
 - max is NOT in the output; it comes from the rubric.
-- evidence_lines must contain 1-based line numbers where the logic appears or where an issue exists, or [] when the criterion is fully met across the program or logic is absent (explain what is absent in comment).
+- evidence_lines must contain 1-based line numbers where the logic appears or where an issue exists, or [] when the criterion is fully met across the program or logic is absent (explain what is absent in justification/comment).
 """.format(schema_version=SCHEMA_VERSION)
 
 
@@ -128,3 +128,28 @@ def build_gold_output(gold_criteria: list, needs_human_review: bool) -> str:
         {"criteria": gold_criteria, "needs_human_review": needs_human_review},
         ensure_ascii=False, separators=(",", ":"),
     )
+
+
+def apply_chat_template_safe(
+    tokenizer: Any,
+    messages: List[Dict[str, str]],
+    add_generation_prompt: bool = False,
+    tokenize: bool = False
+) -> str:
+    """Apply chat template while explicitly locking enable_thinking=False for Qwen3 models.
+    
+    Prevents hidden thinking tokens from colliding with explicit reasoning or truncating outputs.
+    """
+    try:
+        return tokenizer.apply_chat_template(
+            messages,
+            tokenize=tokenize,
+            add_generation_prompt=add_generation_prompt,
+            enable_thinking=False
+        )
+    except TypeError:
+        return tokenizer.apply_chat_template(
+            messages,
+            tokenize=tokenize,
+            add_generation_prompt=add_generation_prompt
+        )
