@@ -361,7 +361,7 @@ class Config:
     execution_report_dropout_rate: float = 0.35  # honest train/eval skew fix (README §4.4)
     include_reference: bool = True               # Flag to include reference solution (README §4.2)
     include_feedback: bool = True                # Flag to include diagnostic feedback (README §4.7)
-    weak_trace_max_share: float = 0.15           # Maximum allowable share of weak traces
+    weak_trace_max_share: float = 0.35           # Maximum allowable share of weak traces
 
     # Real-Repo Configuration (Requirement 2 & Requirement 3)
     real_repo_share: float = 0.80                # Target share of real student code in training set (arms: 0.0, 0.20, 0.50, 0.80)
