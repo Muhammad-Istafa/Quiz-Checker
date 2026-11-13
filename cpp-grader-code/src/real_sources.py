@@ -449,26 +449,64 @@ int main() {
 
 
 def resolve_repo_path(repo_name: str) -> Optional[str]:
-    """Find local repository path, with fast offline Kaggle dataset fallback."""
-    # 1. Local workspace path
-    for base in ["repos", os.path.join("..", "repos"), "."]:
-        cand = os.path.join(base, repo_name)
-        if os.path.isdir(cand):
-            return cand
+    """Find local repository path, with robust Kaggle input, working, and zip auto-extraction fallback."""
+    target_lower = repo_name.lower().replace("-", "").replace("_", "")
 
-    # 2. Fast non-recursive check in /kaggle/input (depth 1 and 2 only)
+    # Auto-unpack any repo zip if present in /kaggle/input (e.g. cpp-grader-repos.zip)
+    working_repos = "/kaggle/working/repos"
     if os.path.isdir("/kaggle/input"):
-        direct = os.path.join("/kaggle/input", repo_name)
-        if os.path.isdir(direct):
-            return direct
         try:
-            for ds in os.listdir("/kaggle/input"):
-                p1 = os.path.join("/kaggle/input", ds, repo_name)
-                if os.path.isdir(p1):
-                    return p1
-                p2 = os.path.join("/kaggle/input", ds, ds, repo_name)
-                if os.path.isdir(p2):
-                    return p2
+            for root, _, files in os.walk("/kaggle/input"):
+                for f in files:
+                    if f.endswith(".zip") and ("repo" in f.lower() or "cpack" in f.lower()):
+                        zip_p = os.path.join(root, f)
+                        os.makedirs(working_repos, exist_ok=True)
+                        flag = os.path.join(working_repos, f".unpacked_{f}")
+                        if not os.path.exists(flag):
+                            import zipfile
+                            with zipfile.ZipFile(zip_p, "r") as zf:
+                                zf.extractall(working_repos)
+                            with open(flag, "w", encoding="utf-8") as fl:
+                                fl.write("ok")
+        except Exception as e:
+            logger.warning(f"Error checking/unpacking repository zips: {e}")
+
+    # Check candidate base directories
+    search_bases = [
+        "repos",
+        os.path.join("..", "repos"),
+        ".",
+        working_repos,
+        "/kaggle/working/repos",
+        "/kaggle/working",
+        "/kaggle/input"
+    ]
+    if os.path.isdir("/kaggle/input"):
+        try:
+            for d in os.listdir("/kaggle/input"):
+                full = os.path.join("/kaggle/input", d)
+                if os.path.isdir(full):
+                    search_bases.append(full)
+                    for sub in os.listdir(full):
+                        sub_p = os.path.join(full, sub)
+                        if os.path.isdir(sub_p):
+                            search_bases.append(sub_p)
+        except Exception:
+            pass
+
+    for base in search_bases:
+        if not base or not os.path.isdir(base):
+            continue
+        exact = os.path.join(base, repo_name)
+        if os.path.isdir(exact):
+            return exact
+        try:
+            for entry in os.listdir(base):
+                entry_norm = entry.lower().replace("-", "").replace("_", "")
+                if entry_norm == target_lower:
+                    full_cand = os.path.join(base, entry)
+                    if os.path.isdir(full_cand):
+                        return full_cand
         except Exception:
             pass
 
