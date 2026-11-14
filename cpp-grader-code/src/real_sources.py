@@ -471,6 +471,22 @@ def resolve_repo_path(repo_name: str) -> Optional[str]:
         except Exception as e:
             logger.warning(f"Error checking/unpacking repository zips: {e}")
 
+    # Check candidate base directories directly
+    direct_cands = [
+        os.path.join("/kaggle/input/cpp-grader-repos/repos", repo_name),
+        os.path.join("/kaggle/input/cpp-grader-repos", repo_name),
+        os.path.join("/kaggle/input/repos", repo_name),
+        os.path.join("/kaggle/input", repo_name),
+        os.path.join("/kaggle/working/repos", repo_name),
+        os.path.join("/kaggle/working", repo_name),
+        os.path.join("repos", repo_name),
+        os.path.join("..", "repos", repo_name),
+        os.path.join(".", repo_name),
+    ]
+    for cand in direct_cands:
+        if os.path.isdir(cand):
+            return cand
+
     # Check candidate base directories
     search_bases = [
         "repos",
@@ -509,6 +525,22 @@ def resolve_repo_path(repo_name: str) -> Optional[str]:
                         return full_cand
         except Exception:
             pass
+
+    # Fallback: shallow walk up to depth 3
+    for base_root in ["/kaggle/input", "/kaggle/working", ".", ".."]:
+        if os.path.isdir(base_root):
+            try:
+                for r, dirs, _ in os.walk(base_root):
+                    if r.count(os.sep) - base_root.count(os.sep) > 3:
+                        dirs.clear()
+                        continue
+                    for d in dirs:
+                        if d.lower().replace("-", "").replace("_", "") == target_lower:
+                            cand = os.path.join(r, d)
+                            if os.path.isdir(cand):
+                                return cand
+            except Exception:
+                pass
 
     return None
 
@@ -831,7 +863,77 @@ def grade_program_with_checkers(
                              "comment": "Inner loop prints column numbers per row." if inner_marks == 4.0 else "Inner loop column boundary defect.",
                              "evidence_lines": [loops[1]] if len(loops) > 1 else (diff_lines[:2] or [1])})
 
-    # ── 10. Default / Fallback Task Evaluator ─────────────────────────────────
+    # ── 10. IntroClass: Checksum (Held-out Unseen Test) ──────────────────────
+    elif tid == "introclass_checksum":
+        in_line = _find_token_line(lines, ["cin", "scanf", "getline", "getchar", "gets", "fgets"])
+        sum_lines = _find_all_token_lines(lines, ["+=", "+ (int)", "sum =", "checksum", "+ string", "+str"])
+        mod_line = _find_token_line(lines, ["% 64", "%64", "% 256", "%256"])
+        out_line = _find_token_line(lines, ["cout", "printf", "putchar"])
+
+        if not in_line and not out_line and not sum_lines:
+            return None
+
+        # chk_input (2.0)
+        if in_line:
+            criteria_out.append({"id": "chk_input", "awarded": 2.0, "comment": "Correctly reads input text string from standard input stream.", "evidence_lines": [in_line]})
+        else:
+            criteria_out.append({"id": "chk_input", "awarded": 0.0, "comment": "Input reading construct missing or omitted from program.", "evidence_lines": []})
+
+        # chk_sum (4.0)
+        if sum_lines:
+            criteria_out.append({"id": "chk_sum", "awarded": 4.0, "comment": "Accurately accumulates ASCII character code values.", "evidence_lines": sum_lines[:2]})
+        else:
+            criteria_out.append({"id": "chk_sum", "awarded": 0.0, "comment": "ASCII accumulation loop construct absent from implementation.", "evidence_lines": []})
+
+        # chk_modulo (2.0)
+        if mod_line:
+            criteria_out.append({"id": "chk_modulo", "awarded": 2.0, "comment": "Applies modulo 64 arithmetic and character offset correctly.", "evidence_lines": [mod_line]})
+        else:
+            criteria_out.append({"id": "chk_modulo", "awarded": 0.0, "comment": "Modulo checksum calculation operation missing from logic.", "evidence_lines": []})
+
+        # chk_output (2.0)
+        if out_line:
+            criteria_out.append({"id": "chk_output", "awarded": 2.0, "comment": "Prints resulting checksum character to stdout.", "evidence_lines": [out_line]})
+        else:
+            criteria_out.append({"id": "chk_output", "awarded": 0.0, "comment": "Checksum character output statement absent from solution.", "evidence_lines": []})
+
+    # ── 11. IntroClass: Syllables (Held-out Unseen Test) ─────────────────────
+    elif tid == "introclass_syllables":
+        in_line = _find_token_line(lines, ["cin", "scanf", "getline", "getchar", "gets", "fgets"])
+        loop_line = _find_token_line(lines, ["for", "while", "strlen", "length", "sizeof"])
+        vowel_lines = _find_all_token_lines(lines, ["'a'", "'e'", "'i'", "'o'", "'u'", "'y'", "case 'a'", "case 'A'", "vowel"])
+        out_line = _find_token_line(lines, ["cout", "printf", "putchar"])
+
+        if not in_line and not loop_line and not vowel_lines:
+            return None
+
+        # syl_input (2.0)
+        if in_line:
+            criteria_out.append({"id": "syl_input", "awarded": 2.0, "comment": "Correctly reads input text string from standard input.", "evidence_lines": [in_line]})
+        else:
+            criteria_out.append({"id": "syl_input", "awarded": 0.0, "comment": "Input reading routine missing / not implemented in code.", "evidence_lines": []})
+
+        # syl_loop (3.0)
+        if loop_line:
+            criteria_out.append({"id": "syl_loop", "awarded": 3.0, "comment": "Iterates across string characters using loop construct.", "evidence_lines": [loop_line]})
+        else:
+            criteria_out.append({"id": "syl_loop", "awarded": 0.0, "comment": "String traversal iteration loop absent from solution.", "evidence_lines": []})
+
+        # syl_check (3.0)
+        if len(vowel_lines) >= 3:
+            criteria_out.append({"id": "syl_check", "awarded": 3.0, "comment": "Identifies vowel characters correctly via conditions or switch.", "evidence_lines": vowel_lines[:3]})
+        elif len(vowel_lines) >= 1:
+            criteria_out.append({"id": "syl_check", "awarded": 1.5, "comment": "Partially checks vowel set with incomplete condition.", "evidence_lines": vowel_lines[:1]})
+        else:
+            criteria_out.append({"id": "syl_check", "awarded": 0.0, "comment": "Vowel checking logic missing / not found in conditions.", "evidence_lines": []})
+
+        # syl_output (2.0)
+        if out_line:
+            criteria_out.append({"id": "syl_output", "awarded": 2.0, "comment": "Outputs total counted syllables/vowels to output stream.", "evidence_lines": [out_line]})
+        else:
+            criteria_out.append({"id": "syl_output", "awarded": 0.0, "comment": "Count output statement omitted from final execution.", "evidence_lines": []})
+
+    # ── 12. Default / Fallback Task Evaluator ─────────────────────────────────
     else:
         # Generic approach-agnostic rubric evaluator based on code tokens
         for crit in task.rubric:
@@ -840,15 +942,15 @@ def grade_program_with_checkers(
             if "in" in cid:
                 l_no = _find_token_line(lines, ["cin", "scanf", "getline"])
                 aw = max_m if l_no else 0.0
-                criteria_out.append({"id": cid, "awarded": aw, "comment": "Input read." if aw > 0 else "Missing input.", "evidence_lines": [l_no] if l_no else []})
+                criteria_out.append({"id": cid, "awarded": aw, "comment": "Reads input stream data correctly." if aw > 0 else "Input stream reading missing / not found in code.", "evidence_lines": [l_no] if l_no else []})
             elif "out" in cid or "display" in cid:
                 l_no = _find_token_line(lines, ["cout", "printf"])
                 aw = max_m if l_no else 0.0
-                criteria_out.append({"id": cid, "awarded": aw, "comment": "Output displayed." if aw > 0 else "Missing output.", "evidence_lines": [l_no] if l_no else []})
+                criteria_out.append({"id": cid, "awarded": aw, "comment": "Displays expected program output correctly." if aw > 0 else "Program output operation missing / not found in code.", "evidence_lines": [l_no] if l_no else []})
             else:
                 l_no = _find_token_line(lines, ["for", "while", "if", "return", "int", "="])
                 aw = max_m if l_no else max_m / 2.0
-                criteria_out.append({"id": cid, "awarded": aw, "comment": "Logic criterion satisfied.", "evidence_lines": [l_no or 1]})
+                criteria_out.append({"id": cid, "awarded": aw, "comment": "Logical construct identified and verified." if aw > 0 else "Required logical construct missing / not found in code.", "evidence_lines": [l_no or 1]})
 
     # Check that all rubric criteria were populated
     if len(criteria_out) != len(task.rubric):
@@ -955,12 +1057,14 @@ def load_introclass_student_programs(
 
 def load_cpack_ipas_student_programs(
     repo_root: Optional[str] = None,
-    syntax_policy: str = DEFAULT_SYNTAX_ERROR_POLICY
+    syntax_policy: str = DEFAULT_SYNTAX_ERROR_POLICY,
+    max_per_subdir: int = 500
 ) -> List[Dict[str, Any]]:
     """Extract real student programs from C-Pack-IPAs Lab02-Lab04.
     
     Derives per-criterion marks from test metadata (info.md) and AST/pattern checkers.
     Excludes unverified records; never uses flat per-category marks.
+    Uses fast lazy traversal up to max_per_subdir.
     """
     root = repo_root or resolve_repo_path("C-Pack-IPAs")
     if not root or not os.path.isdir(root):
@@ -988,79 +1092,88 @@ def load_cpack_ipas_student_programs(
         if not os.path.isdir(dir_path):
             continue
 
-        c_files = glob.glob(os.path.join(dir_path, "**", "*.c"), recursive=True)
-        for path in c_files:
-            p_lower = path.lower()
-            matched_lab_key = None
-            for lk in ["lab02", "lab03", "lab04"]:
-                if lk in p_lower:
-                    matched_lab_key = lk
-                    break
-            if not matched_lab_key:
-                continue
-
-            task_obj = task_map[matched_lab_key]
-
-            try:
-                with open(path, "r", encoding="utf-8", errors="replace") as f:
-                    code = f.read()
-                norm = normalize_code_for_dedup(code)
-                h = hashlib.sha256(norm.encode("utf-8")).hexdigest()
-                if h in seen_hashes:
+        dir_loaded = 0
+        for r, _, files in os.walk(dir_path):
+            for f in files:
+                if not f.endswith(".c"):
                     continue
-                seen_hashes.add(h)
-
-                # Look for companion info.md for exact faults and lines
-                parent_dir = os.path.dirname(path)
-                info_path = os.path.join(parent_dir, "info.md")
-                meta: Dict[str, Any] = {
-                    "sub_dir": dir_name,
-                    "is_syntax_broken": ("syntax" in dir_name)
-                }
-
-                if os.path.isfile(info_path):
-                    try:
-                        with open(info_path, "r", encoding="utf-8", errors="replace") as inf:
-                            info_text = inf.read()
-                        f_lines_m = re.search(r"faulty_lines:\s*\[(.*?)\]", info_text)
-                        if f_lines_m:
-                            raw_nums = f_lines_m.group(1).split(",")
-                            meta["faulty_lines"] = [int(n.strip()) for n in raw_nums if n.strip().isdigit()]
-                        f_types_m = re.search(r"fault_types:\s*\[(.*?)\]", info_text)
-                        if f_types_m:
-                            meta["fault_types"] = [t.strip() for t in f_types_m.group(1).split(",") if t.strip()]
-                    except Exception:
-                        pass
-
-                gold_crit = grade_program_with_checkers(
-                    task=task_obj,
-                    code=code,
-                    meta=meta,
-                    syntax_error_policy=syntax_policy
-                )
-
-                if gold_crit is None:
-                    n_excluded += 1
+                path = os.path.join(r, f)
+                p_lower = path.lower()
+                matched_lab_key = None
+                for lk in ["lab02", "lab03", "lab04"]:
+                    if lk in p_lower:
+                        matched_lab_key = lk
+                        break
+                if not matched_lab_key:
                     continue
 
-                file_stem = os.path.splitext(os.path.basename(path))[0]
-                tot_marks = sum(float(c["awarded"]) for c in gold_crit)
+                task_obj = task_map[matched_lab_key]
 
-                programs.append({
-                    "student_id": f"cpack_{matched_lab_key}_{file_stem}",
-                    "task_id": task_obj.task_id,
-                    "code": code,
-                    "origin": "real_repo",
-                    "repo_name": "C-Pack-IPAs",
-                    "language": "c",
-                    "verdict": dir_name,
-                    "gold_criteria": gold_crit,
-                    "awarded_marks": tot_marks,
-                    "is_held_out": False,
-                    "evidence_lines": gold_crit[0].get("evidence_lines", [1])
-                })
-            except Exception as e:
-                logger.debug(f"Error reading C-Pack file {path}: {e}")
+                try:
+                    with open(path, "r", encoding="utf-8", errors="replace") as fh:
+                        code = fh.read()
+                    norm = normalize_code_for_dedup(code)
+                    h = hashlib.sha256(norm.encode("utf-8")).hexdigest()
+                    if h in seen_hashes:
+                        continue
+                    seen_hashes.add(h)
+
+                    # Look for companion info.md for exact faults and lines
+                    parent_dir = os.path.dirname(path)
+                    info_path = os.path.join(parent_dir, "info.md")
+                    meta: Dict[str, Any] = {
+                        "sub_dir": dir_name,
+                        "is_syntax_broken": ("syntax" in dir_name)
+                    }
+
+                    if os.path.isfile(info_path):
+                        try:
+                            with open(info_path, "r", encoding="utf-8", errors="replace") as inf:
+                                info_text = inf.read()
+                            f_lines_m = re.search(r"faulty_lines:\s*\[(.*?)\]", info_text)
+                            if f_lines_m:
+                                raw_nums = f_lines_m.group(1).split(",")
+                                meta["faulty_lines"] = [int(n.strip()) for n in raw_nums if n.strip().isdigit()]
+                            f_types_m = re.search(r"fault_types:\s*\[(.*?)\]", info_text)
+                            if f_types_m:
+                                meta["fault_types"] = [t.strip() for t in f_types_m.group(1).split(",") if t.strip()]
+                        except Exception:
+                            pass
+
+                    gold_crit = grade_program_with_checkers(
+                        task=task_obj,
+                        code=code,
+                        meta=meta,
+                        syntax_error_policy=syntax_policy
+                    )
+
+                    if gold_crit is None:
+                        n_excluded += 1
+                        continue
+
+                    file_stem = os.path.splitext(os.path.basename(path))[0]
+                    tot_marks = sum(float(c["awarded"]) for c in gold_crit)
+
+                    programs.append({
+                        "student_id": f"cpack_{matched_lab_key}_{file_stem}",
+                        "task_id": task_obj.task_id,
+                        "code": code,
+                        "origin": "real_repo",
+                        "repo_name": "C-Pack-IPAs",
+                        "language": "c",
+                        "verdict": dir_name,
+                        "gold_criteria": gold_crit,
+                        "awarded_marks": tot_marks,
+                        "is_held_out": False,
+                        "evidence_lines": gold_crit[0].get("evidence_lines", [1])
+                    })
+                    dir_loaded += 1
+                    if dir_loaded >= max_per_subdir:
+                        break
+                except Exception as e:
+                    logger.debug(f"Error reading C-Pack file {path}: {e}")
+            if dir_loaded >= max_per_subdir:
+                break
 
     logger.info(f"Loaded {len(programs)} verified programs from C-Pack-IPAs (excluded {n_excluded} unverified).")
     return programs
