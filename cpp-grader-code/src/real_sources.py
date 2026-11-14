@@ -688,11 +688,11 @@ def grade_program_with_checkers(
                              "evidence_lines": [in_line] if in_line else []})
 
         if len(cmp_lines) >= 3 or ("min" in code and len(cmp_lines) >= 1):
-            criteria_out.append({"id": "sml_logic", "awarded": 5.0, "comment": "Determines minimum across all four numbers.", "evidence_lines": cmp_lines[:3] or [1]})
+            criteria_out.append({"id": "sml_logic", "awarded": 5.0, "comment": "Determines minimum across all four numbers.", "evidence_lines": cmp_lines[:3] or ([in_line] if in_line else [])})
         elif len(cmp_lines) >= 1:
             criteria_out.append({"id": "sml_logic", "awarded": 2.5, "comment": "Partial minimum comparison across inputs.", "evidence_lines": cmp_lines[:2]})
         else:
-            criteria_out.append({"id": "sml_logic", "awarded": 0.0, "comment": "Fails to compare four values for minimum.", "evidence_lines": []})
+            criteria_out.append({"id": "sml_logic", "awarded": 0.0, "comment": "Fails to compare four values for minimum; required comparisons missing.", "evidence_lines": []})
 
         criteria_out.append({"id": "sml_output", "awarded": 3.0 if out_line else 0.0,
                              "comment": "Outputs smallest value." if out_line else "Missing output statement.",
@@ -746,8 +746,8 @@ def grade_program_with_checkers(
             branch_marks = max(0.0, branch_marks - 2.5)
 
         criteria_out.append({"id": "cpack_l2_branch", "awarded": branch_marks,
-                             "comment": "Correctly checks positive, negative, and zero conditions." if branch_marks >= 4.0 else "Incomplete classification branches.",
-                             "evidence_lines": branch_lines[:3] or faulty_lines or [1]})
+                             "comment": "Correctly checks positive, negative, and zero conditions." if branch_marks >= 4.0 else "Incomplete classification branches; required conditional check missing / not found.",
+                             "evidence_lines": branch_lines[:3] or faulty_lines or []})
 
         out_marks = 3.0 if out_line else 0.0
         if any("Output" in str(ft) for ft in fault_types):
@@ -856,12 +856,12 @@ def grade_program_with_checkers(
             inner_marks = max(0.0, inner_marks - 2.0)
 
         criteria_out.append({"id": "itsp_l4_outer", "awarded": outer_marks,
-                             "comment": "Outer loop controls rows correctly.",
-                             "evidence_lines": [loops[0]] if loops else [1]})
+                             "comment": "Outer loop controls rows correctly." if outer_marks == 3.0 else "Outer loop row control missing or incorrect.",
+                             "evidence_lines": [loops[0]] if loops else []})
 
         criteria_out.append({"id": "itsp_l4_inner", "awarded": inner_marks,
-                             "comment": "Inner loop prints column numbers per row." if inner_marks == 4.0 else "Inner loop column boundary defect.",
-                             "evidence_lines": [loops[1]] if len(loops) > 1 else (diff_lines[:2] or [1])})
+                             "comment": "Inner loop prints column numbers per row." if inner_marks == 4.0 else "Inner loop column boundary defect / construct absent.",
+                             "evidence_lines": [loops[1]] if len(loops) > 1 else (diff_lines[:2] or [])})
 
     # ── 10. IntroClass: Checksum (Held-out Unseen Test) ──────────────────────
     elif tid == "introclass_checksum":
