@@ -83,8 +83,8 @@ def build_criterion_reasoning(
             text = tmpl.format(cid=cid, desc=desc)
     else:
         # Deduction
-        if evidence_lines and provenance_info:
-            issue = provenance_info.description
+        if evidence_lines:
+            issue = provenance_info.description if provenance_info else "required construct logic is defective or missing"
             tmpl = rng.choice(VERDICT_TEMPLATES_DEDUCTION_CODE)
             text = tmpl.format(cid=cid, desc=desc, lines=lines_str, issue=issue)
         elif has_exec_report and exec_report and exec_report.get("test_results"):
