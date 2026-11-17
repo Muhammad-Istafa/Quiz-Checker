@@ -25,7 +25,8 @@ function callMcp(tool, args) {
       res.on('data', c => data += c);
       res.on('end', () => {
         try {
-          const raw = data.replace(/^event: message\ndata: /, '').trim();
+          const match = data.match(/data:\s*({[\s\S]*})/);
+          const raw = match ? match[1] : data.replace(/^event:\s*message\r?\ndata:\s*/, '').trim();
           resolve(JSON.parse(raw));
         } catch(e) {
           resolve({ raw: data, error: e.message });
