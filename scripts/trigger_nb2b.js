@@ -9,14 +9,23 @@ async function main() {
   const payload = {
     request: {
       slug: `${USERNAME}/quiz-checker-nb2b`,
+      hasSlug: true,
       newTitle: 'Quiz Checker nb2b',
+      hasNewTitle: true,
       text: nbText,
+      hasText: true,
       language: 'python',
+      hasLanguage: true,
       kernelType: 'notebook',
+      hasKernelType: true,
       isPrivate: true,
+      hasIsPrivate: true,
       enableGpu: true,
+      hasEnableGpu: true,
       enableInternet: true,
+      hasEnableInternet: true,
       kernelExecutionType: 'SaveAndRunAll',
+      hasKernelExecutionType: true,
       kernelDataSources: [
         `${USERNAME}/quiz-checker-nb2`,
         `${USERNAME}/nb1b-teacher`,
