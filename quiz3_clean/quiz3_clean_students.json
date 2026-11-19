@@ -1,0 +1,370 @@
+[
+  {
+    "rowNum": 2,
+    "rollNo": "25F-0502",
+    "gt": 3.5,
+    "solution": "#include <iostream>\nusing namespace std;\nint main ()\n{\n    int amount ,a ,b ,c ,d;\n\n    cout << \"Enter amount b/w 1000 and 9999\";\n    cin >> amount;\n\ta = amount / 1000;\n\tb = amount / 100;\n\tb = b % 10;\n\tc = amount % 100;\n\tc = c / 10;\n\td = amount % 10;\n\tcout << \"Your change is below \\n 1000:\" << a << \"\\n 100:\" << b << \"\\n 10:\" << c << \"\\n 1:\" << d;\n\treturn 0;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main ()\n{\n    int amount ,a ,b ,c ,d;\n\n    cout << \"Enter amount b/w 1000 and 9999\";\n    cin >> amount;\n\ta = amount / 1000;\n\tb = amount / 100;\n\tb = b % 10;\n\tc = amount % 100;\n\tc = c / 10;\n\td = amount % 10;\n\tcout << \"Your change is below \\n 1000:\" << a << \"\\n 100:\" << b << \"\\n 10:\" << c << \"\\n 1:\" << d;\n\treturn 0;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 3,
+    "rollNo": "25F-0518",
+    "gt": 7,
+    "solution": "#include <iostream>\nusing namespace std;\nint main()\n{\n    int amount,a,b,c,d,e,f,g,h;\n    cout << \"Enter amount\";\n    cin >> amount;\n\n    a = amount/1000;\n    amount = amount-(a*1000);\n    b = amount/500;\n    amount = amount-(b*500);\n    c = amount/100;\n    amount = amount-(c*100);\n    d = amount/50;\n    amount = amount-(d*50);\n    e = amount/20;\n    amount = amount-(e*20);\n    f = amount/10;\n    amount = amount-(f*10);\n    g = amount/5;\n    amount = amount-(g*5);\n    h = amount/1;\n    amount = amount-(h*1);\n\n    cout << \"Your change is below:\" << endl << \"1000:\" << a << endl << \"500:\" << b << endl << \"100:\" << c << endl << \"50:\" << d << endl << \"20:\" << e << endl << \"10:\" << f << endl << \"5:\" << g << endl << \"1:\" << h << endl;\n\n    return 0;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main()\n{\n    int amount,a,b,c,d,e,f,g,h;\n    cout << \"Enter amount\";\n    cin >> amount;\n\n    a = amount/1000;\n    amount = amount-(a*1000);\n    b = amount/500;\n    amount = amount-(b*500);\n    c = amount/100;\n    amount = amount-(c*100);\n    d = amount/50;\n    amount = amount-(d*50);\n    e = amount/20;\n    amount = amount-(e*20);\n    f = amount/10;\n    amount = amount-(f*10);\n    g = amount/5;\n    amount = amount-(g*5);\n    h = amount/1;\n    amount = amount-(h*1);\n\n    cout << \"Your change is below:\" << endl << \"1000:\" << a << endl << \"500:\" << b << endl << \"100:\" << c << endl << \"50:\" << d << endl << \"20:\" << e << endl << \"10:\" << f << endl << \"5:\" << g << endl << \"1:\" << h << endl;\n\n    return 0;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 4,
+    "rollNo": "25F-0536",
+    "gt": 1,
+    "solution": "#include <iostream>\nusing namespace std;\nint main() {\n    int Rupees, hundreds;\n    int min;\n    cout << \"Please enter your amount in Rupees\";\n    cin >> Rupees;\n    Rupees /1000 = Rupees;\n    cout << \"1000:\" << Rupees;\n    cout\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main() {\n    int Rupees, hundreds;\n    int min;\n    cout << \"Please enter your amount in Rupees\";\n    cin >> Rupees;\n    Rupees /1000 = Rupees;\n    cout << \"1000:\" << Rupees;\n    cout\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 5,
+    "rollNo": "25F-0537",
+    "gt": 7,
+    "solution": "Question #2:\nPoints: 07\nWrite a C++ program that takes an amount in rupees (as an integer) and calculates the minimum number of currency notes needed to make that amount using the denominations: 1000, 500, 100, 50, 20, 10, 5, and 1. We assume that a user will enter an amount >1000 and amount <= 9999.\nSample input: 2896\nSample output: Your change is below:\n1000: 2 500:1 100:3 50:1 20:2 10:0 5:1 1:1\nYour Code:\n#include <iostream>\nusing namespace std;\nint main() {\n    int rupees, thousandnotes, rem, fivehundrednotes, hundrednotes, fiftynotes, twentynotes, tennotes, fivenotes, onenotes;\n    cout << \"Enter the amount of rupees: \";\n    cin >> rupees;\n    if (rupees >= 1000) {\n        thousandnotes = rupees / 1000;\n        cout << \"1000:\" << thousandnotes;\n        rem = rupees % 1000;\n    }\n    if (rupees >= 500 && rupees <= 1000) {\n        fivehundrednotes = rupees / 500;\n        cout << \"500:\" << fivehundrednotes;\n        rem = rupees % 500;\n    }\n    if (rupees >= 100 && rupees <= 500) {\n        hundrednotes = rupees / 100;\n        cout << \"100:\" << hundrednotes;\n        rem = rupees % 100;\n    }\n    if (rupees >= 50 && rupees <= 100) {\n        fiftynotes = rupees / 50;\n        cout << \"50:\" << fiftynotes;\n        rem = rupees % 50;\n    }\n    if (rupees >= 20 && rupees <= 50) {\n        twentynotes = rupees / 20;\n        cout << \"20:\" << twentynotes;\n        rem = rupees % 20;\n    }\n    if (rupees >= 10 && rupees <= 20) {\n        tennotes = rupees / 10;\n        cout << \"10:\" << tennotes;\n        rem = rupees % 10;\n    }\n    return 0;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main() {\n    int rupees, thousandnotes, rem, fivehundrednotes, hundrednotes, fiftynotes, twentynotes, tennotes, fivenotes, onenotes;\n    cout << \"Enter the amount of rupees: \";\n    cin >> rupees;\n    if (rupees >= 1000) {\n        thousandnotes = rupees / 1000;\n        cout << \"1000:\" << thousandnotes;\n        rem = rupees % 1000;\n    }\n    if (rupees >= 500 && rupees <= 1000) {\n        fivehundrednotes = rupees / 500;\n        cout << \"500:\" << fivehundrednotes;\n        rem = rupees % 500;\n    }\n    if (rupees >= 100 && rupees <= 500) {\n        hundrednotes = rupees / 100;\n        cout << \"100:\" << hundrednotes;\n        rem = rupees % 100;\n    }\n    if (rupees >= 50 && rupees <= 100) {\n        fiftynotes = rupees / 50;\n        cout << \"50:\" << fiftynotes;\n        rem = rupees % 50;\n    }\n    if (rupees >= 20 && rupees <= 50) {\n        twentynotes = rupees / 20;\n        cout << \"20:\" << twentynotes;\n        rem = rupees % 20;\n    }\n    if (rupees >= 10 && rupees <= 20) {\n        tennotes = rupees / 10;\n        cout << \"10:\" << tennotes;\n        rem = rupees % 10;\n    }\n    return 0;\n}\n",
+    "wasModified": true
+  },
+  {
+    "rowNum": 6,
+    "rollNo": "25F-0538",
+    "gt": 4,
+    "solution": "#include <iostream>\nusing namespace std\nint main ()\n{\n\tint currency;\n\tint thousand,five_hun,hund,fifty,twenty,ten,unit;\n\tcout << \"Amount\";\n\tcin >> currency;\n\tthousand = currency/1000;\n\tfive_hund = (currency % 1000)/500;\n\thund = five_hund\n\tcout << \"Thousand\" << thousand << \"In five_hundred\" << five_hund << \"In hund\" << hund\n\treturn 0;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std\nint main ()\n{\n\tint currency;\n\tint thousand,five_hun,hund,fifty,twenty,ten,unit;\n\tcout << \"Amount\";\n\tcin >> currency;\n\tthousand = currency/1000;\n\tfive_hund = (currency % 1000)/500;\n\thund = five_hund\n\tcout << \"Thousand\" << thousand << \"In five_hundred\" << five_hund << \"In hund\" << hund\n\treturn 0;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 7,
+    "rollNo": "25F-0543",
+    "gt": 7,
+    "solution": "#include <iostream>\nusing namespace std;\nint main()\n{\n    int 1000, 500, 100, 50, 20, 10, 5, 1\n    cout << \"Enter an amount >1000 and amount <= 9999\";\n    cin >> Amount;\n    int 1000notes = Amount / 1000;\n    int Remaining amount = Amount % 1000;\n    int 500notes = Remaining amount / 500;\n    int Remaining amount = Remaining amount % 500;\n    int 100notes = Remaining amount / 100;\n    int Remaining amount = Remaining amount % 100;\n    int 50notes = Remaining amount / 50;\n    int Remaining amount = Remaining amount % 50;\n    int 20notes = Remaining amount / 20;\n    int Remaining amount = Remaining amount % 20;\n    int 10notes = Remaining amount / 10;\n    int Remaining amount = Remaining amount % 10;\n\tint  5notes = Remaining amount / 5;\n    int Remaining amount = Remaining amount % 5;\n\tint 1notes = Remaining amount / 1;\n    int Remaining amount = Remaining amount % 1;\n\tcout<<\"1000:\"<<1000notes\\t<<\"500:\"<<500notes\\t<<\"100:\"<<100notes\\t<<\"50:\"<<50notes\\t<<\"10:\"<<10notes\\t<<\"5:\"<<5notes\\t<<\"1:\"<<1notes\\t;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main()\n{\n    int 1000, 500, 100, 50, 20, 10, 5, 1\n    cout << \"Enter an amount >1000 and amount <= 9999\";\n    cin >> Amount;\n    int 1000notes = Amount / 1000;\n    int Remaining amount = Amount % 1000;\n    int 500notes = Remaining amount / 500;\n    int Remaining amount = Remaining amount % 500;\n    int 100notes = Remaining amount / 100;\n    int Remaining amount = Remaining amount % 100;\n    int 50notes = Remaining amount / 50;\n    int Remaining amount = Remaining amount % 50;\n    int 20notes = Remaining amount / 20;\n    int Remaining amount = Remaining amount % 20;\n    int 10notes = Remaining amount / 10;\n    int Remaining amount = Remaining amount % 10;\n\tint  5notes = Remaining amount / 5;\n    int Remaining amount = Remaining amount % 5;\n\tint 1notes = Remaining amount / 1;\n    int Remaining amount = Remaining amount % 1;\n\tcout<<\"1000:\"<<1000notes\\t<<\"500:\"<<500notes\\t<<\"100:\"<<100notes\\t<<\"50:\"<<50notes\\t<<\"10:\"<<10notes\\t<<\"5:\"<<5notes\\t<<\"1:\"<<1notes\\t;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 8,
+    "rollNo": "25F-0545",
+    "gt": 2.5,
+    "solution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amo;\n    cout << \"Enter an amount in rupees\";\n    cin >> amo;\n    int Thousand = amo / 1000;\n    int 5Hundered = amo / 500;\n    int 1Hundered = amo / 100;\n    int 20 = amo / 20;\n    int 10 = amo / 10;\n    int 5 = amo / 5;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amo;\n    cout << \"Enter an amount in rupees\";\n    cin >> amo;\n    int Thousand = amo / 1000;\n    int 5Hundered = amo / 500;\n    int 1Hundered = amo / 100;\n    int 20 = amo / 20;\n    int 10 = amo / 10;\n    int 5 = amo / 5;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 9,
+    "rollNo": "25F-0548",
+    "gt": 1,
+    "solution": "#include <iostream>\nusing namespace std;\n\tint rup_1000, rup_500, rup_100, rup_50, rup_20, rup_10, rup_5, rup_1 = 0;\n\tcin >> ruppees;\n\ttemp = ruppees;\n\twhile (temp > 0)\n\t{\n\ttemp = temp % 1000;\n\trup_1000 = rup_1000 + 1;\n\t}\n\ttemp = temp / 10;\n\twhile (temp > 0)\n\t{\n\t\ttemp = temp % 500;\n\t\trup_500 = rup_500 + 1;\n\t}\n\ttemp = temp / 10;\n\twhile (temp > 0)\n\t{\n\t\ttemp = temp % 100;\n\t\trup_100 = rup_100 + 1;\n\t}\n\twhile (temp > 0)\n\t{\n\t\ttemp = temp % 50;\n\t\trup_50 = rup_50 + 1;\n\t}\n\ttemp = temp / 10;\n\twhile (temp > 0)\n\t{\n\t\ttemp = temp % 10;\n\t\trup_10 = rup_10 + 1;\n\t}\n\ttemp = temp / 10;\n\twhile (temp > 0)\n\t{\n\t\ttemp = temp % 5;\n\t\trup_5 = rup_5 + 1;\n\t}\n\ttemp = temp / 10;\n\twhile (temp > 0)\n\t{\n\t\ttemp = temp % 1;\n\t\trup_1 = rup_1 + 1;\n\t}\n\tcout << rup_1000 << \" \";\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\n\tint rup_1000, rup_500, rup_100, rup_50, rup_20, rup_10, rup_5, rup_1 = 0;\n\tcin >> ruppees;\n\ttemp = ruppees;\n\twhile (temp > 0)\n\t{\n\ttemp = temp % 1000;\n\trup_1000 = rup_1000 + 1;\n\t}\n\ttemp = temp / 10;\n\twhile (temp > 0)\n\t{\n\t\ttemp = temp % 500;\n\t\trup_500 = rup_500 + 1;\n\t}\n\ttemp = temp / 10;\n\twhile (temp > 0)\n\t{\n\t\ttemp = temp % 100;\n\t\trup_100 = rup_100 + 1;\n\t}\n\twhile (temp > 0)\n\t{\n\t\ttemp = temp % 50;\n\t\trup_50 = rup_50 + 1;\n\t}\n\ttemp = temp / 10;\n\twhile (temp > 0)\n\t{\n\t\ttemp = temp % 10;\n\t\trup_10 = rup_10 + 1;\n\t}\n\ttemp = temp / 10;\n\twhile (temp > 0)\n\t{\n\t\ttemp = temp % 5;\n\t\trup_5 = rup_5 + 1;\n\t}\n\ttemp = temp / 10;\n\twhile (temp > 0)\n\t{\n\t\ttemp = temp % 1;\n\t\trup_1 = rup_1 + 1;\n\t}\n\tcout << rup_1000 << \" \";\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 10,
+    "rollNo": "25F-0550",
+    "gt": 1,
+    "solution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amount;\n    cout << \"Enter amount (>1000):\";\n    cin >> amount;\n    if (amount <= 1000) {\n        cout << \"Amount should be greater than 1000.\";\n        return 1;\n    }\n    int notes = 0;\n    int denominations[] = {1000, 500, 100, 50, 20, 10, 5, 1};\n    int size = sizeof(denominations)/sizeof(denominations[0]);\n    for (int i = 0; i < size; i++) {\n        notes += amount / denominations[i];\n        amount %= denominations[i];\n    }\n    cout << \"Minimum number of currency notes needed\" << endl;\n    return 0;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amount;\n    cout << \"Enter amount (>1000):\";\n    cin >> amount;\n    if (amount <= 1000) {\n        cout << \"Amount should be greater than 1000.\";\n        return 1;\n    }\n    int notes = 0;\n    int denominations[] = {1000, 500, 100, 50, 20, 10, 5, 1};\n    int size = sizeof(denominations)/sizeof(denominations[0]);\n    for (int i = 0; i < size; i++) {\n        notes += amount / denominations[i];\n        amount %= denominations[i];\n    }\n    cout << \"Minimum number of currency notes needed\" << endl;\n    return 0;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 11,
+    "rollNo": "25F-0559",
+    "gt": 7,
+    "solution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amount, thousand, fiveHundred, hundred, fifty, twenty, ten, five, one;\n    cout << \"Enter the amount: \";\n    cin >> amount;\n    amount / 1000 = thousand;\n    amount = amount % 1000;\n    amount / 500 = fiveHundred;\n\tamount = amount % 500;\n    amount / 100 = hundred;\n\tamount = amount % 100;\n    amount / 50 = fifty;\n\tamount = amount % 50;\n    amount / 20 = twenty;\n\tamount = amount % 20;\n    amount / 10 = ten;\n\tamount = amount % 10;\n    amount / 5 = five;\n\tamount = amount % 5;\n    amount / 1 = one;\n    cout << \"1000:\" << thousand << endl << \"500:\" << fiveHundred << endl << \"100:\" << hundred << endl << \"50:\" << fifty << endl << \"20:\" << twenty << endl << \"10:\" << ten << endl << \"5:\" << five << endl << \"1:\" << one << endl;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amount, thousand, fiveHundred, hundred, fifty, twenty, ten, five, one;\n    cout << \"Enter the amount: \";\n    cin >> amount;\n    amount / 1000 = thousand;\n    amount = amount % 1000;\n    amount / 500 = fiveHundred;\n\tamount = amount % 500;\n    amount / 100 = hundred;\n\tamount = amount % 100;\n    amount / 50 = fifty;\n\tamount = amount % 50;\n    amount / 20 = twenty;\n\tamount = amount % 20;\n    amount / 10 = ten;\n\tamount = amount % 10;\n    amount / 5 = five;\n\tamount = amount % 5;\n    amount / 1 = one;\n    cout << \"1000:\" << thousand << endl << \"500:\" << fiveHundred << endl << \"100:\" << hundred << endl << \"50:\" << fifty << endl << \"20:\" << twenty << endl << \"10:\" << ten << endl << \"5:\" << five << endl << \"1:\" << one << endl;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 12,
+    "rollNo": "25F-0563",
+    "gt": 7,
+    "solution": "#include <iostream>\nusing namespace std;\nint main()\n{\n    int currency; // stores amount entered by user\n    int notes_1000, notes_500, notes_100, notes_50, notes_20, note_10,\n    notes_5, notes_1;\n    cout << \"Input your amount\";\n    cin >> currency;\n    notes_1000 = currency / 1000;\n    currency = currency % 1000;\n    notes_500 = currency / 500;\n    currency = currency % 500;\n    notes_100 = currency / 100;\n    currency = currency % 100;\n    notes_50 = currency / 50;\n    currency = currency % 50;\n    notes_20 = currency / 20;\n    currency = currency % 20;\n    notes_10 = currency / 10;\n    currency = currency % 10;\n    notes_5 = currency / 5;\n    currency = currency % 5;\n    notes_1 = currency / 1;\n    currency = currency % 1;\n    cout << \"notes required is:\" << notes_1000 << \":\" << notes_500 << \":\" << notes_100 << \":\" << notes_50 << \":\" << notes_20 << \":\" << notes_10 << \":\" << notes_5 << \":\" << notes_1;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main()\n{\n    int currency; // stores amount entered by user\n    int notes_1000, notes_500, notes_100, notes_50, notes_20, note_10,\n    notes_5, notes_1;\n    cout << \"Input your amount\";\n    cin >> currency;\n    notes_1000 = currency / 1000;\n    currency = currency % 1000;\n    notes_500 = currency / 500;\n    currency = currency % 500;\n    notes_100 = currency / 100;\n    currency = currency % 100;\n    notes_50 = currency / 50;\n    currency = currency % 50;\n    notes_20 = currency / 20;\n    currency = currency % 20;\n    notes_10 = currency / 10;\n    currency = currency % 10;\n    notes_5 = currency / 5;\n    currency = currency % 5;\n    notes_1 = currency / 1;\n    currency = currency % 1;\n    cout << \"notes required is:\" << notes_1000 << \":\" << notes_500 << \":\" << notes_100 << \":\" << notes_50 << \":\" << notes_20 << \":\" << notes_10 << \":\" << notes_5 << \":\" << notes_1;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 13,
+    "rollNo": "25F-0571",
+    "gt": 2,
+    "solution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amount, 1000n, 500n, 100n, 50n, 20n, 10n, 5n, In\n    cout << \"Enter amount \";\n    cin >> amount;\n    amount = amount % 1000;\n    500n = [amount - (1000n * 1000)] % 500;\n    100n = [amount - (500n * 100)] % 100;\n    50n = [amount - (50n * 10)] % 50;\n    cout << \"<1000>> <<500n>> <<100n>> <<50n>> <<20n>> <<10n>> <<5n>> <<In>>;\n    system(\"pause\");\n    return 0;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amount, 1000n, 500n, 100n, 50n, 20n, 10n, 5n, In\n    cout << \"Enter amount \";\n    cin >> amount;\n    amount = amount % 1000;\n    500n = [amount - (1000n * 1000)] % 500;\n    100n = [amount - (500n * 100)] % 100;\n    50n = [amount - (50n * 10)] % 50;\n    cout << \"<1000>> <<500n>> <<100n>> <<50n>> <<20n>> <<10n>> <<5n>> <<In>>;\n    system(\"pause\");\n    return 0;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 14,
+    "rollNo": "25F-0575",
+    "gt": 3.5,
+    "solution": "#include<iostream>\nusing namespace std;\nint main() {\n    int rup;\n    cout << \"Enter amount greater than 1000 and smaller or equal to 9999\";\n    cin >> rup;\n    cout << \"Your change is below\\n\";\n    rup / 1000, rup / 500, rup / 100, rup / 50, rup / 20, rup / 10, rup / 5, rup / rup;\n    cout << rup / 1000; << rup / 500; << rup / 100; << rup / 50; << rup / 20; << rup / 10; << rup / 5; << rup / rup;\n    system(\"pause\");\n    return 0;\n}",
+    "cleanedSolution": "#include<iostream>\nusing namespace std;\nint main() {\n    int rup;\n    cout << \"Enter amount greater than 1000 and smaller or equal to 9999\";\n    cin >> rup;\n    cout << \"Your change is below\\n\";\n    rup / 1000, rup / 500, rup / 100, rup / 50, rup / 20, rup / 10, rup / 5, rup / rup;\n    cout << rup / 1000; << rup / 500; << rup / 100; << rup / 50; << rup / 20; << rup / 10; << rup / 5; << rup / rup;\n    system(\"pause\");\n    return 0;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 15,
+    "rollNo": "25F-0577",
+    "gt": 3.5,
+    "solution": "#include <iostream>\nusing namespace std;\nint main() {\n    int cash_amount;\n    cin >> cash_amount;\n    if (cash_amount > 1000 && cash_amount <= 9999) {\n        cout << cash_amount / 1000 << \":\" << \"1000\";\n        cout << cash_amount / 500  << \":\" << \"500\";\n        cout << cash_amount / 100  << \":\" << \"100\";\n        cout << cash_amount / 50  << \":\" << \"50\";\n        cout << cash_amount / 20  << \":\" << \"20\";\n        cout << cash_amount / 10  << \":\" << \"10\";\n        cout << cash_amount / 5  << \":\" << \"5\";\n    }\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main() {\n    int cash_amount;\n    cin >> cash_amount;\n    if (cash_amount > 1000 && cash_amount <= 9999) {\n        cout << cash_amount / 1000 << \":\" << \"1000\";\n        cout << cash_amount / 500  << \":\" << \"500\";\n        cout << cash_amount / 100  << \":\" << \"100\";\n        cout << cash_amount / 50  << \":\" << \"50\";\n        cout << cash_amount / 20  << \":\" << \"20\";\n        cout << cash_amount / 10  << \":\" << \"10\";\n        cout << cash_amount / 5  << \":\" << \"5\";\n    }\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 16,
+    "rollNo": "25F-0579",
+    "gt": 1,
+    "solution": "#include <iostream>\nint main() {\nusing namespace std;\ncout << \"enter amount\";\ncin >> amount;\nfloat change;\nchange = 1000%amount;\ncout << change;\nchange = 500%amount;\ncout << change;\nchange = 100%amount;\ncout << change;\n}",
+    "cleanedSolution": "#include <iostream>\nint main() {\nusing namespace std;\ncout << \"enter amount\";\ncin >> amount;\nfloat change;\nchange = 1000%amount;\ncout << change;\nchange = 500%amount;\ncout << change;\nchange = 100%amount;\ncout << change;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 17,
+    "rollNo": "25F-0582",
+    "gt": 3.5,
+    "solution": "#include <iostream>\nusing namespace std;\nint main()\n{\n    cout << \"Enter a number between 1000 and <= 9999\";\n    cin >> num;\n    cout << \"1000\" << num / 1000 << \"\\n\";\n    cout << \"500\" << num / 500 << \"\\n\";\n    cout << \"100\" << num / 100 << \"\\n\";\n    cout << \"50\" << num / 50 << \"\\n\";\n    cout << \"20\" << num / 20 << \"\\n\";\n    cout << \"10\" << num / 10 << \"\\n\";\n    cout << \"5\" << num / 5 << \"\\n\";\n    cout << \"1\" << num / 1 << \"\\n\";\n    return 0;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main()\n{\n    cout << \"Enter a number between 1000 and <= 9999\";\n    cin >> num;\n    cout << \"1000\" << num / 1000 << \"\\n\";\n    cout << \"500\" << num / 500 << \"\\n\";\n    cout << \"100\" << num / 100 << \"\\n\";\n    cout << \"50\" << num / 50 << \"\\n\";\n    cout << \"20\" << num / 20 << \"\\n\";\n    cout << \"10\" << num / 10 << \"\\n\";\n    cout << \"5\" << num / 5 << \"\\n\";\n    cout << \"1\" << num / 1 << \"\\n\";\n    return 0;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 18,
+    "rollNo": "25F-0610",
+    "gt": 1,
+    "solution": "#include <iostream>\nusing namespace std;\nint main()\n{\n    int amount_in_Rs;\n    int currency_notes = 1000, 500, 100, 50, 20, 10, 5, 1;\n    cout << \"Enter an amount >1000 and amount <=9999\";\n    cin >> \"Amount in Rs\";\n    cout << \"Your change is below\\n\";\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main()\n{\n    int amount_in_Rs;\n    int currency_notes = 1000, 500, 100, 50, 20, 10, 5, 1;\n    cout << \"Enter an amount >1000 and amount <=9999\";\n    cin >> \"Amount in Rs\";\n    cout << \"Your change is below\\n\";\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 19,
+    "rollNo": "25F-0611",
+    "gt": 7,
+    "solution": "#include <iostream>\nusing namespace std;\nint main() {\n    int num;\n    cout << \"Enter number >1000 and <=9999\";\n    cin >> num;\n\n    int thousand = num/1000;\n    num = num%1000;\n    int five_hundred = num/500;\n    num = num%500;\n    int hundred = num/100;\n    num = num%100;\n    int fifty = num/50;\n    num = num%50;\n    int twenty = num/20;\n    num = num%20;\n\n    int ten = num/10;\n    num = num%10;\n    int one = num/1;\n    num = num%1;\n\n    cout << \"1000:\" << thousand << \" 500:\" << five_hundred << \" 100:\" << hundred << \" 50:\" << fifty << \" 20:\" << twenty << \" 10:\" << ten << \" 5:\" << one << \" 1:\" << one/2;\n    return 0;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main() {\n    int num;\n    cout << \"Enter number >1000 and <=9999\";\n    cin >> num;\n\n    int thousand = num/1000;\n    num = num%1000;\n    int five_hundred = num/500;\n    num = num%500;\n    int hundred = num/100;\n    num = num%100;\n    int fifty = num/50;\n    num = num%50;\n    int twenty = num/20;\n    num = num%20;\n\n    int ten = num/10;\n    num = num%10;\n    int one = num/1;\n    num = num%1;\n\n    cout << \"1000:\" << thousand << \" 500:\" << five_hundred << \" 100:\" << hundred << \" 50:\" << fifty << \" 20:\" << twenty << \" 10:\" << ten << \" 5:\" << one << \" 1:\" << one/2;\n    return 0;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 20,
+    "rollNo": "25F-0619",
+    "gt": 7,
+    "solution": "Question #2:\nPoints: 07\nWrite a C++ program that takes an amount in rupees (as an integer) and calculates the minimum number of currency notes needed to make that amount using the denominations: 1000, 500, 100, 50, 20, 10, 5, and 1. We assume that a user will enter an amount >1000 and amount <= 9999.\nSample input: 2896\nSample output: Your change is below:\n1000:2 500:1 100:3 50:1 20:2 10:0 5:1 1:1\nYour Code:\n#include <iostream>\nusing namespace std;\nint main() {\n    int amount, thousand, five_hund, hundred, fifty, twenty, ten, five, one;\n    cout << \"Enter amount: \";\n    cin >> amount;\n    if (amount >= 1000) {\n        thousand = amount / 1000;\n        amount = amount % 1000;\n\tif (amount >= 500) {\n\t\tfive_hund = amount / 500;\n\t\tamount = amount % 500;\n\tif (amount >= 100) {\n\t\thundred = amount / 100;\n\t\tamount = amount % 100;\n\tif (amount >= 50) {\n\t\tfifty = amount / 50;\n\t\tamount = amount % 50;\n\tif (amount >= 20) {\n\t\ttwenty = amount / 20;\n\t\tamount = amount % 20;\n\tif (amount >= 10) {\n\t\tten = amount / 10;\n\t\tamount = amount % 10;\n\tif (amount >= 5) {\n\t\tfive = amount / 5;\n\t\tamount = amount % 5;\n\tif (amount >= 1) {\n\t\tone = amount / 1;\n\t\tamount = amount % 1;\n\t\tcout << \"1000:\" << thousand << \" 500:\" << five_hund << \" 100:\" << hundred << \" 50:\" << fifty << \" 20:\" << twenty << \" 10:\" << ten << \" 5:\" << five << \" 1:\" << one;",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amount, thousand, five_hund, hundred, fifty, twenty, ten, five, one;\n    cout << \"Enter amount: \";\n    cin >> amount;\n    if (amount >= 1000) {\n        thousand = amount / 1000;\n        amount = amount % 1000;\n\tif (amount >= 500) {\n\t\tfive_hund = amount / 500;\n\t\tamount = amount % 500;\n\tif (amount >= 100) {\n\t\thundred = amount / 100;\n\t\tamount = amount % 100;\n\tif (amount >= 50) {\n\t\tfifty = amount / 50;\n\t\tamount = amount % 50;\n\tif (amount >= 20) {\n\t\ttwenty = amount / 20;\n\t\tamount = amount % 20;\n\tif (amount >= 10) {\n\t\tten = amount / 10;\n\t\tamount = amount % 10;\n\tif (amount >= 5) {\n\t\tfive = amount / 5;\n\t\tamount = amount % 5;\n\tif (amount >= 1) {\n\t\tone = amount / 1;\n\t\tamount = amount % 1;\n\t\tcout << \"1000:\" << thousand << \" 500:\" << five_hund << \" 100:\" << hundred << \" 50:\" << fifty << \" 20:\" << twenty << \" 10:\" << ten << \" 5:\" << five << \" 1:\" << one;\n",
+    "wasModified": true
+  },
+  {
+    "rowNum": 21,
+    "rollNo": "25F-0637",
+    "gt": 3.5,
+    "solution": "#include <iostream>\nusing namespace std;\nint main()\n{\n    int RupeeAmount;\n    cout << \"Enter amount in rupees:\" << endl;\n    cin >> RupeeAmount;\n    int Thousand = RupeeAmount / 1000;\n    int FiveHundred = RupeeAmount / 500;\n    int Hundred = RupeeAmount / 100;\n    int Fifty = RupeeAmount / 50;\n    int Twenty = RupeeAmount / 20;\n    int Ten = RupeeAmount / 10;\n    int Five = RupeeAmount / 5;\n    int One = RupeeAmount / 1;\n    cout << 1000 << \"Thousand(s):\" << 500 << \"FiveHundred(s):\" << 100 << \"Hundred(s):\"<<endl;\n    return 0;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main()\n{\n    int RupeeAmount;\n    cout << \"Enter amount in rupees:\" << endl;\n    cin >> RupeeAmount;\n    int Thousand = RupeeAmount / 1000;\n    int FiveHundred = RupeeAmount / 500;\n    int Hundred = RupeeAmount / 100;\n    int Fifty = RupeeAmount / 50;\n    int Twenty = RupeeAmount / 20;\n    int Ten = RupeeAmount / 10;\n    int Five = RupeeAmount / 5;\n    int One = RupeeAmount / 1;\n    cout << 1000 << \"Thousand(s):\" << 500 << \"FiveHundred(s):\" << 100 << \"Hundred(s):\"<<endl;\n    return 0;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 22,
+    "rollNo": "25F-0651",
+    "gt": 2,
+    "solution": "#include <iostream>\nusing namespace std;\nint main() {\n    int rupee, rupee_1000, rupee_500, rupee_100, rupee_50, rupee_20, rupee_10, rupee_5;\n    cout << \"Enter amount between 1000 and 9999\";\n    cin >> rupee;\n    int temp = 0;\n    temp = rupee % 10;",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main() {\n    int rupee, rupee_1000, rupee_500, rupee_100, rupee_50, rupee_20, rupee_10, rupee_5;\n    cout << \"Enter amount between 1000 and 9999\";\n    cin >> rupee;\n    int temp = 0;\n    temp = rupee % 10;\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 23,
+    "rollNo": "25F-0658",
+    "gt": 5,
+    "solution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amount, thousand, five_hundred, hundred, fifty, twenty, ten, five, one;\n    cout << \"Enter amount \"; int Tremaining, Fremaining, Hremaining, Fremaining cin >> amount\n    Thousand = amount / 1000; Tremaining = amount % 1000;\n    Five_hundred = Tremaining / 500; Fremaining = Tremaining % 500;\n    hundred = Fremaining / 100; Hremaining = Fremaining % 100;\n    Fifty = Hremaining / 50; Fremaining = Hremaining % 50;\n    Twenty = Fremaining / 20; Twremaining\n    Ten = amount / 10;\n    Five = amount / 5;\n    One = amount / 1;",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amount, thousand, five_hundred, hundred, fifty, twenty, ten, five, one;\n    cout << \"Enter amount \"; int Tremaining, Fremaining, Hremaining, Fremaining cin >> amount\n    Thousand = amount / 1000; Tremaining = amount % 1000;\n    Five_hundred = Tremaining / 500; Fremaining = Tremaining % 500;\n    hundred = Fremaining / 100; Hremaining = Fremaining % 100;\n    Fifty = Hremaining / 50; Fremaining = Hremaining % 50;\n    Twenty = Fremaining / 20; Twremaining\n    Ten = amount / 10;\n    Five = amount / 5;\n    One = amount / 1;\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 24,
+    "rollNo": "25F-0664",
+    "gt": 6.5,
+    "solution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amount, Thousand, Five_hundreds, One_hundred, Fifty, Twenty,\n        Ten, Five, One;\n    cout << \"Enter amount between 1000 and 9999\";\n    cin >> amount;\n    Thousand = amount / 1000;\n    Five_hundreds = (amount % 1000) / 500;\n    One_hundred = (Five_hundreds % 500) / 100;\n    Fifty = (One_hundred % 100) / 50;\n    Twenty = (Fifty % 50) / 20;\n    Ten = (Twenty % 10);\n    One = Ten % 10;\n    cout << \"Thousand\" << Thousand << \"Five_hundreds\" << Five_hundreds << \"One_hundred\" << One_hundred << \"Fifty\" << Fifty << \"Twenty\" << Twenty << \"Ten\" << Ten << \"One\" << One;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amount, Thousand, Five_hundreds, One_hundred, Fifty, Twenty,\n        Ten, Five, One;\n    cout << \"Enter amount between 1000 and 9999\";\n    cin >> amount;\n    Thousand = amount / 1000;\n    Five_hundreds = (amount % 1000) / 500;\n    One_hundred = (Five_hundreds % 500) / 100;\n    Fifty = (One_hundred % 100) / 50;\n    Twenty = (Fifty % 50) / 20;\n    Ten = (Twenty % 10);\n    One = Ten % 10;\n    cout << \"Thousand\" << Thousand << \"Five_hundreds\" << Five_hundreds << \"One_hundred\" << One_hundred << \"Fifty\" << Fifty << \"Twenty\" << Twenty << \"Ten\" << Ten << \"One\" << One;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 25,
+    "rollNo": "25F-0694",
+    "gt": 3.5,
+    "solution": "#include<iostream>\nusing namespace std;\nint main()\n{\n    int amount;\n    cout << \"Input amount:\";\n    cin >> amount;\n    if (amount < 1000 && amount >= 9999)\n    {\n        cout << \"Enter amount in range\";\n        return 0;\n    }\n    cout << \"1000:\" << amount/1000;\n    cout << \"500:\" << amount/500;\n    cout << \"100:\" << amount/100;\n    cout << \"50:\" << amount/50;\n    cout << \"20:\" << amount/20;\n    cout << \"10:\" << amount/10;\n    cout << \"5:\" << amount/5;\n    cout << \"1:\" << amount/1;\n}",
+    "cleanedSolution": "#include<iostream>\nusing namespace std;\nint main()\n{\n    int amount;\n    cout << \"Input amount:\";\n    cin >> amount;\n    if (amount < 1000 && amount >= 9999)\n    {\n        cout << \"Enter amount in range\";\n        return 0;\n    }\n    cout << \"1000:\" << amount/1000;\n    cout << \"500:\" << amount/500;\n    cout << \"100:\" << amount/100;\n    cout << \"50:\" << amount/50;\n    cout << \"20:\" << amount/20;\n    cout << \"10:\" << amount/10;\n    cout << \"5:\" << amount/5;\n    cout << \"1:\" << amount/1;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 26,
+    "rollNo": "25F-0697",
+    "gt": 1,
+    "solution": "#include <iostream>\nusing namespace std;\nint main()\n{\n    int amount;\n    cout << \"Enter amount in rupees\";\n    cin >> amount;\n    if (amount < 1000 && amount >= 9999)\n    {\n        cout << \"Enter the amount in a given range\";\n    }\n    return 0;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main()\n{\n    int amount;\n    cout << \"Enter amount in rupees\";\n    cin >> amount;\n    if (amount < 1000 && amount >= 9999)\n    {\n        cout << \"Enter the amount in a given range\";\n    }\n    return 0;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 27,
+    "rollNo": "25F-0707",
+    "gt": 7,
+    "solution": "#include <iostream>\nusing namespace std;\nint main()\n{\n    int amnt;\n    cout << \"Enter your amount (between 1000 & 9999): \";\n    cin >> amnt;\n    int thousands, huns, hun1, fifty, twent, ten, five, one;\n    int remain_amnt;\n    thousands = amnt / 1000;\n    remain_amnt = amnt % 1000;\n    huns = remain_amnt / 500;\n    remain_amnt = remain_amnt % 500;\n    hun1 = remain_amnt / 100;\n    remain_amnt = remain_amnt % 100;\n    fifty = remain_amnt / 50;\n    remain_amnt = remain_amnt % 50;\n    twent = remain_amnt / 20;\n    remain_amnt = remain_amnt % 20;\n    ten = remain_amnt / 10;\n    remain_amnt = remain_amnt % 10;\n    one = remain_amnt / 1;\n    remain_amnt = remain_amnt % 1;\n    cout << thousands << \"thousands\" << \"500:\" << huns << \"100:\" << hun1 << \"50:\" << fifty << \"20:\" << twent << \"10:\" << ten << \"5:\" << five << \"1:\" << one << endl;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main()\n{\n    int amnt;\n    cout << \"Enter your amount (between 1000 & 9999): \";\n    cin >> amnt;\n    int thousands, huns, hun1, fifty, twent, ten, five, one;\n    int remain_amnt;\n    thousands = amnt / 1000;\n    remain_amnt = amnt % 1000;\n    huns = remain_amnt / 500;\n    remain_amnt = remain_amnt % 500;\n    hun1 = remain_amnt / 100;\n    remain_amnt = remain_amnt % 100;\n    fifty = remain_amnt / 50;\n    remain_amnt = remain_amnt % 50;\n    twent = remain_amnt / 20;\n    remain_amnt = remain_amnt % 20;\n    ten = remain_amnt / 10;\n    remain_amnt = remain_amnt % 10;\n    one = remain_amnt / 1;\n    remain_amnt = remain_amnt % 1;\n    cout << thousands << \"thousands\" << \"500:\" << huns << \"100:\" << hun1 << \"50:\" << fifty << \"20:\" << twent << \"10:\" << ten << \"5:\" << five << \"1:\" << one << endl;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 28,
+    "rollNo": "25F-0709",
+    "gt": 2.5,
+    "solution": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"enter the value\";\n    cin >> price;\n    int remain = price div 1000;\n    int x = price / 1000;\n    amount = 500;\n    int note100 = amount / 100;\n    amount = 100;\n    int note50 = amount / 50;\n    amount = 50;\n    int note20 = amount / 20;\n    amount = 20;\n    int note10 = amount / 10;\n    amount = 10;\n\tint note5 = amount / 5;\n    amount = 5;\n\tPrintF(\"1000\" % d /r",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"enter the value\";\n    cin >> price;\n    int remain = price div 1000;\n    int x = price / 1000;\n    amount = 500;\n    int note100 = amount / 100;\n    amount = 100;\n    int note50 = amount / 50;\n    amount = 50;\n    int note20 = amount / 20;\n    amount = 20;\n    int note10 = amount / 10;\n    amount = 10;\n\tint note5 = amount / 5;\n    amount = 5;\n\tPrintF(\"1000\" % d /r\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 29,
+    "rollNo": "25F-0711",
+    "gt": 0,
+    "solution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amount = 5000;\n    cout << \"Your change is below:\" << endl;\n    cout << \"1000: \" << amount / 1000 << endl;\n    return 0;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amount = 5000;\n    cout << \"Your change is below:\" << endl;\n    cout << \"1000: \" << amount / 1000 << endl;\n    return 0;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 30,
+    "rollNo": "25F-0714",
+    "gt": 1,
+    "solution": "#include <iostream>\nusing namespace std;\nint main() {\n    cout << \"Enter currency amount\\n\";\n    cin >> Amount;\n    sub = Amount / 1000;\n\treturn 0;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main() {\n    cout << \"Enter currency amount\\n\";\n    cin >> Amount;\n    sub = Amount / 1000;\n\treturn 0;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 31,
+    "rollNo": "25F-0724",
+    "gt": 3.5,
+    "solution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amount;\n    cin >> amount;\n    cout << \"Enter amount\";\n    cin >> amount;\n\ta=amount/100;\n\tb=a/500;\n\tc=b/100;\n\td=c/50;\n\te=d/20;\n\tf=e/10;\n\tg=f/5;\n\th=g/500;\n\t\n    cout << \"Sample input\" <<amount;\n    cout << \"Your change is below:\" << endl;\n    cout << \"1000: \" << a << \"/t\";\n    cout << \"500: \" << b << \"/t\";\n    cout << \"100: \" << c << \"/t\";\n    cout << \"50: \" << d << \"/t\";\n    cout << \"20: \" << e << \"/t\";\n    cout << \"10: \" << f << \"/t\";\n    cout << \"5: \" << g << \"/t\";\n    cout << \"1: \" << h << \"/t\";\n    system(\"pause\");\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amount;\n    cin >> amount;\n    cout << \"Enter amount\";\n    cin >> amount;\n\ta=amount/100;\n\tb=a/500;\n\tc=b/100;\n\td=c/50;\n\te=d/20;\n\tf=e/10;\n\tg=f/5;\n\th=g/500;\n\t\n    cout << \"Sample input\" <<amount;\n    cout << \"Your change is below:\" << endl;\n    cout << \"1000: \" << a << \"/t\";\n    cout << \"500: \" << b << \"/t\";\n    cout << \"100: \" << c << \"/t\";\n    cout << \"50: \" << d << \"/t\";\n    cout << \"20: \" << e << \"/t\";\n    cout << \"10: \" << f << \"/t\";\n    cout << \"5: \" << g << \"/t\";\n    cout << \"1: \" << h << \"/t\";\n    system(\"pause\");\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 32,
+    "rollNo": "25F-0726",
+    "gt": 3,
+    "solution": "#include <iostream>\nusing namespace std;\nint main() {\n    int num, num1, num2, num3, num4, num5,\n        num6, num7, num8;\n    cout << \"Enter any number between 1001 and 9999\";\n\tcin>>num;\n    if (num > 1000 && num <= 9999) {\n        num1 = num % 1000; num2 = num % 500; num3 = num % 100;\n        num4 = num % 50; num5 = num % 20; num6 = num % 10; num7 = num % 5;\n        num8 = num % 1;\n\n        cout << \"1000 : \" << num1;\n        cout << \" 500 : \" << (num - num1) / 500;\n        cout << \" 100 : \" << num3;\n        cout << \" 50 : \" << num4;\n        cout << \" 20 : \" << num5;\n        cout << \" 10 : \" << num6;\n        cout << \" 5 : \" << num7;\n        cout << \" 1 : \" << num8;\n    }\n    return 0;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main() {\n    int num, num1, num2, num3, num4, num5,\n        num6, num7, num8;\n    cout << \"Enter any number between 1001 and 9999\";\n\tcin>>num;\n    if (num > 1000 && num <= 9999) {\n        num1 = num % 1000; num2 = num % 500; num3 = num % 100;\n        num4 = num % 50; num5 = num % 20; num6 = num % 10; num7 = num % 5;\n        num8 = num % 1;\n\n        cout << \"1000 : \" << num1;\n        cout << \" 500 : \" << (num - num1) / 500;\n        cout << \" 100 : \" << num3;\n        cout << \" 50 : \" << num4;\n        cout << \" 20 : \" << num5;\n        cout << \" 10 : \" << num6;\n        cout << \" 5 : \" << num7;\n        cout << \" 1 : \" << num8;\n    }\n    return 0;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 33,
+    "rollNo": "25F-0732",
+    "gt": 1,
+    "solution": "#include <iostream>\nusing namespace std;\nint main()\n{\n    int amount, num1, num2, num3;\n    cout << \"Enter amount\";\n    cin >> amount",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main()\n{\n    int amount, num1, num2, num3;\n    cout << \"Enter amount\";\n    cin >> amount\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 34,
+    "rollNo": "25F-0744",
+    "gt": 6,
+    "solution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amount;\n    cout << \"Enter amount in rupees\";\n    cin >> amount;\n    Thousand = amount/1000\n    Five-hundred= (amount%1000)/500\n    Hundred= (amount%1000)/500/100\n    Fifty= (amount%1000)/500/50\n    twenty= (amount%1000)/500/50/20\n    ten= (amount%1000)/500/50/10\n    Five=\n    system(\"pause\");\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amount;\n    cout << \"Enter amount in rupees\";\n    cin >> amount;\n    Thousand = amount/1000\n    Five-hundred= (amount%1000)/500\n    Hundred= (amount%1000)/500/100\n    Fifty= (amount%1000)/500/50\n    twenty= (amount%1000)/500/50/20\n    ten= (amount%1000)/500/50/10\n    Five=\n    system(\"pause\");\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 35,
+    "rollNo": "25F-0749",
+    "gt": 7,
+    "solution": "#include <iostream>\nusing namespace std;\nint main() {\n    int n1000, n500, n100, n50, n20, n10, n5, n1;\n    cout << \"Enter amount\";\n    cin >> amount;\n    int remaining = 0;\n    n1000 = amount / 1000;\n    remaining = amount % 1000;\n    n500 = remaining / 500;\n    remaining = remaining % 500;\n    n100 = remaining / 100;\n    remaining = remaining % 100;\n    n50 = remaining / 50;\n    remaining = remaining % 50;\n    n20 = remaining / 20;\n    remaining = remaining % 20;\n    n10 = remaining / 10;\n    remaining = remaining % 10;\n    n5 = remaining / 5;\n    remaining = remaining % 5;\n    n1 = remaining;\n    cout << \"1000:\" << n1000 << \"500:\" << n500 << \"100:\" << n100 << \"50:\" << n50 << \"20:\" << n20 << \"10:\" << n10 << \"5:\" << n5 << \"1:\" << n1 << endl;\n    return 0;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main() {\n    int n1000, n500, n100, n50, n20, n10, n5, n1;\n    cout << \"Enter amount\";\n    cin >> amount;\n    int remaining = 0;\n    n1000 = amount / 1000;\n    remaining = amount % 1000;\n    n500 = remaining / 500;\n    remaining = remaining % 500;\n    n100 = remaining / 100;\n    remaining = remaining % 100;\n    n50 = remaining / 50;\n    remaining = remaining % 50;\n    n20 = remaining / 20;\n    remaining = remaining % 20;\n    n10 = remaining / 10;\n    remaining = remaining % 10;\n    n5 = remaining / 5;\n    remaining = remaining % 5;\n    n1 = remaining;\n    cout << \"1000:\" << n1000 << \"500:\" << n500 << \"100:\" << n100 << \"50:\" << n50 << \"20:\" << n20 << \"10:\" << n10 << \"5:\" << n5 << \"1:\" << n1 << endl;\n    return 0;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 36,
+    "rollNo": "25F-0751",
+    "gt": 3,
+    "solution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amount;\n    cout << \"Enter your amount:\";\n    cin >> amount;\n\n    amount = amount % 1000;\n    cout << \"1000: \" << amount;\n    amount = amount % 500;\n    cout << \"500: \" << amount;\n    amount = amount % 100;\n    cout << \"100: \" << amount;\n    amount = amount % 50;\n    cout << \"50: \" << amount;\n    amount = amount % 20;\n    cout << \"20: \" << amount;\n    amount = amount % 10;\n    cout << \"10: \" << amount;\n    amount = amount % 5;\n    cout << \"5: \" << amount;\n    amount = amount % 1;\n    cout << \"1: \" << amount;\n    system(\"pause\");\n    return 0;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amount;\n    cout << \"Enter your amount:\";\n    cin >> amount;\n\n    amount = amount % 1000;\n    cout << \"1000: \" << amount;\n    amount = amount % 500;\n    cout << \"500: \" << amount;\n    amount = amount % 100;\n    cout << \"100: \" << amount;\n    amount = amount % 50;\n    cout << \"50: \" << amount;\n    amount = amount % 20;\n    cout << \"20: \" << amount;\n    amount = amount % 10;\n    cout << \"10: \" << amount;\n    amount = amount % 5;\n    cout << \"5: \" << amount;\n    amount = amount % 1;\n    cout << \"1: \" << amount;\n    system(\"pause\");\n    return 0;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 37,
+    "rollNo": "25F-0769",
+    "gt": 1,
+    "solution": "#include <iostream>\nusing namespace std;\nint main() {\nint amount;\ncout << \"Enter the amount 9999>=amount >1000\";\ncin >> Amount;\nreturn 0;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main() {\nint amount;\ncout << \"Enter the amount 9999>=amount >1000\";\ncin >> Amount;\nreturn 0;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 38,
+    "rollNo": "25F-0776",
+    "gt": 1,
+    "solution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amount;\n    cout << \"Input amount\";\n    cin >> amount;\n    if (amount > 1000 && amount <= 9999) {\n        cout << \"Enter amount in range\";\n        return 0;\n    }\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amount;\n    cout << \"Input amount\";\n    cin >> amount;\n    if (amount > 1000 && amount <= 9999) {\n        cout << \"Enter amount in range\";\n        return 0;\n    }\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 39,
+    "rollNo": "25F-0786",
+    "gt": 1,
+    "solution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amount, thousand, hundreds, fifty, twenty, ten, five, one;\n    cout << \"Enter amount between 1000 and <= 9999\";\n    cin >> amount;\n    thousand = amount % 1000;\n    hundred5 = amount % 500;\n    fifty = amount % 50;\n    hundred = amount % 100;\n    twenty = amount % 20;\n    five = amount % 5;\n    ten = amount % 10;\n    one = amount % 1;\n    cout << \"Your change is below:\" << thousand << \"\\t\" << hundreds << \"\\t\" << fifty << \"\\t\" << twenty << \"\\t\" << ten << \"\\t\" << five << \"\\t\" << one;\n    return 0;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amount, thousand, hundreds, fifty, twenty, ten, five, one;\n    cout << \"Enter amount between 1000 and <= 9999\";\n    cin >> amount;\n    thousand = amount % 1000;\n    hundred5 = amount % 500;\n    fifty = amount % 50;\n    hundred = amount % 100;\n    twenty = amount % 20;\n    five = amount % 5;\n    ten = amount % 10;\n    one = amount % 1;\n    cout << \"Your change is below:\" << thousand << \"\\t\" << hundreds << \"\\t\" << fifty << \"\\t\" << twenty << \"\\t\" << ten << \"\\t\" << five << \"\\t\" << one;\n    return 0;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 40,
+    "rollNo": "25F-0789",
+    "gt": 5,
+    "solution": "#include <stdio.h>\nint main() {\n    int amount;\n    printf(\"Enter the amount:\");\n    scanf(\"%d\", &amount);\n    int notes1000 = amount / 1000;\n    amount %= 1000;\n    int notes500 = amount / 500;\n    amount %= 500;\n    int notes100 = amount / 100;\n    amount %= 100;\n    int notes50 = amount / 50;\n    amount %= 50;\n    int notes20 = amount / 20;\n    amount %= 20;\n    int notes10 = amount / 10;\n    amount %= 10;\n    int notes5 = amount / 5;\n    amount %= 5;\n    int notes1 = amount / 1;\n    amount %= 1;\n\n    printf(\"Your change is below:\\n\");\n    printf(\"1000: %d\\n\", notes1000);\n    printf(\"500: %d\\n\", notes500);\n    printf(\"100: %d\\n\", notes100);\n    printf(\"50: %d\\n\", notes50);\n    printf(\"20: %d\\n\", notes20);\n    printf(\"10: %d\\n\", notes10);\n    printf(\"5: %d\\n\", notes5);\n    printf(\"1: %d\\n\", notes1);\n\n    return 0;\n}",
+    "cleanedSolution": "#include <stdio.h>\nint main() {\n    int amount;\n    printf(\"Enter the amount:\");\n    scanf(\"%d\", &amount);\n    int notes1000 = amount / 1000;\n    amount %= 1000;\n    int notes500 = amount / 500;\n    amount %= 500;\n    int notes100 = amount / 100;\n    amount %= 100;\n    int notes50 = amount / 50;\n    amount %= 50;\n    int notes20 = amount / 20;\n    amount %= 20;\n    int notes10 = amount / 10;\n    amount %= 10;\n    int notes5 = amount / 5;\n    amount %= 5;\n    int notes1 = amount / 1;\n    amount %= 1;\n\n    printf(\"Your change is below:\\n\");\n    printf(\"1000: %d\\n\", notes1000);\n    printf(\"500: %d\\n\", notes500);\n    printf(\"100: %d\\n\", notes100);\n    printf(\"50: %d\\n\", notes50);\n    printf(\"20: %d\\n\", notes20);\n    printf(\"10: %d\\n\", notes10);\n    printf(\"5: %d\\n\", notes5);\n    printf(\"1: %d\\n\", notes1);\n\n    return 0;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 41,
+    "rollNo": "25F-0790",
+    "gt": 4.5,
+    "solution": "#include <iostream>\nusing namespace std;\nint main () {\n    int remaining_amount;\n    int amount, thousand, hundred,fifty, twenty, ten, five, one;\n    cout << \"Enter amount in rupees\";\n    cin >> amount;\n    thousand = amount / 1000;\n    remaining_amount = amount % 1000;\n    hundred = remaining_amount / 500;\n    remaining_amount = remaining_amount % 500;\n    fifty = remaining_amount / 50;\n    remaining_amount = remaining_amount % 50;",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main () {\n    int remaining_amount;\n    int amount, thousand, hundred,fifty, twenty, ten, five, one;\n    cout << \"Enter amount in rupees\";\n    cin >> amount;\n    thousand = amount / 1000;\n    remaining_amount = amount % 1000;\n    hundred = remaining_amount / 500;\n    remaining_amount = remaining_amount % 500;\n    fifty = remaining_amount / 50;\n    remaining_amount = remaining_amount % 50;\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 42,
+    "rollNo": "25F-0793",
+    "gt": 1,
+    "solution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amount;\n    cout << \"Enter amount: \";\n    cin >> amount;\n    int notes[] = {1000, 500, 100, 50, 20, 10, 5, 1};\n    cout << \"Your change is below:\\n\";\n    for (int i = 0; i < 8; i++) {\n        int want = amount / notes;\n        amount = amount % notes;\n        cout << notes << \" \" << want << endl;\n    return 0;",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main() {\n    int amount;\n    cout << \"Enter amount: \";\n    cin >> amount;\n    int notes[] = {1000, 500, 100, 50, 20, 10, 5, 1};\n    cout << \"Your change is below:\\n\";\n    for (int i = 0; i < 8; i++) {\n        int want = amount / notes;\n        amount = amount % notes;\n        cout << notes << \" \" << want << endl;\n    return 0;\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 43,
+    "rollNo": "25F-0800",
+    "gt": 7,
+    "solution": "#include <iostream>\nusing namespace std;\nint main() {\nint amount;\ncout << \"Enter the amount in rupees\";\ncin >> amount;\nint n1000 = amount / 1000;\nint n500 = (amount - n1000 * 1000) / 500;\nint n100 = (amount - n1000 * 1000 - n500 * 500) / 100;\nint n50 = (amount - n1000 * 1000 - n500 * 500 - n100 * 100) / 50;\nint n20 = (amount - n1000 * 1000 - n500 * 500 - n100 * 100 - n50 * 50) / 20;\nint n10 = (amount - n1000 * 1000 - n500 * 500 - n100 * 100 - n50 * 50 - n20 * 20) / 10;\nint n5 = (amount - n1000 * 1000 - n500 * 500 - n100 * 100 - n50 * 50 - n20 * 20 - n10 * 10) / 5;\nint n1 = (amount - n1000 * 1000 - n500 * 500 - n100 * 100 - n50 * 50 - n20 * 20 - n10 * 10 - n5 * 5) / 1;\ncout << \"1000:\" << n1000 << \" 500:\" << n500 << \" 100:\" << n100 << \" 50:\" << n50 << \" 20:\" << n20 << \" 10:\" << n10 << \" 5:\" << n5 << \" 1:\" << n1 << endl;\nreturn 0;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main() {\nint amount;\ncout << \"Enter the amount in rupees\";\ncin >> amount;\nint n1000 = amount / 1000;\nint n500 = (amount - n1000 * 1000) / 500;\nint n100 = (amount - n1000 * 1000 - n500 * 500) / 100;\nint n50 = (amount - n1000 * 1000 - n500 * 500 - n100 * 100) / 50;\nint n20 = (amount - n1000 * 1000 - n500 * 500 - n100 * 100 - n50 * 50) / 20;\nint n10 = (amount - n1000 * 1000 - n500 * 500 - n100 * 100 - n50 * 50 - n20 * 20) / 10;\nint n5 = (amount - n1000 * 1000 - n500 * 500 - n100 * 100 - n50 * 50 - n20 * 20 - n10 * 10) / 5;\nint n1 = (amount - n1000 * 1000 - n500 * 500 - n100 * 100 - n50 * 50 - n20 * 20 - n10 * 10 - n5 * 5) / 1;\ncout << \"1000:\" << n1000 << \" 500:\" << n500 << \" 100:\" << n100 << \" 50:\" << n50 << \" 20:\" << n20 << \" 10:\" << n10 << \" 5:\" << n5 << \" 1:\" << n1 << endl;\nreturn 0;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 44,
+    "rollNo": "25F-0809",
+    "gt": 6.5,
+    "solution": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int amount;\n    cout << \"Enter your amount\";\n    cin >> amount;\n    int thousandCount;\n    thousandCount = amount / 1000;\n    int remaining;\n    remaining = amount % 1000;\n    int _500count;\n    _500count = remaining / 500;\n    int remaining2;\n    remaining2 = remaining % 500;\n    int _100count;\n    _100count = remaining2 / 100;\n    int remaining3 = remaining2 % 100;\n    int _50count;\n    _50count = remaining3 / 50\n    int remaining4;\n    remaining4 = remaining3 % 50;\n    int _20count;\n    _20count = remaining4 / 20;\n    int remaining5;\n    remaining5 = remaining4 % 20;\n    int _10count;\n    _10count = remaining5 / 10;\n    int remaining6;\n    remaining6 = remaining5 % 10;\n    cout << \"thousandCount << \" << endl\n         << _500count << \" \" << endl\n         << _100count << \" \" << endl\n         << _50count << \" \" << endl\n         << remaining6 << \" \" << endl\n         return 0;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int amount;\n    cout << \"Enter your amount\";\n    cin >> amount;\n    int thousandCount;\n    thousandCount = amount / 1000;\n    int remaining;\n    remaining = amount % 1000;\n    int _500count;\n    _500count = remaining / 500;\n    int remaining2;\n    remaining2 = remaining % 500;\n    int _100count;\n    _100count = remaining2 / 100;\n    int remaining3 = remaining2 % 100;\n    int _50count;\n    _50count = remaining3 / 50\n    int remaining4;\n    remaining4 = remaining3 % 50;\n    int _20count;\n    _20count = remaining4 / 20;\n    int remaining5;\n    remaining5 = remaining4 % 20;\n    int _10count;\n    _10count = remaining5 / 10;\n    int remaining6;\n    remaining6 = remaining5 % 10;\n    cout << \"thousandCount << \" << endl\n         << _500count << \" \" << endl\n         << _100count << \" \" << endl\n         << _50count << \" \" << endl\n         << remaining6 << \" \" << endl\n         return 0;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 45,
+    "rollNo": "25F-0811",
+    "gt": 1.5,
+    "solution": "#include <iostream>\nusing namespace std;\nint main() {\n    int rs_amount;\n    cout << \"Enter amount in Rs\";\n    cin >> rs_amount;\n    int a = rs_amount / 1000\n    int b = rs_amount / 500\n    int c = rs_amount / 100\n    int d = rs_amount / 50\n    int e = rs_amount / 20\n    int f = rs_amount / 10\n    int g =",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main() {\n    int rs_amount;\n    cout << \"Enter amount in Rs\";\n    cin >> rs_amount;\n    int a = rs_amount / 1000\n    int b = rs_amount / 500\n    int c = rs_amount / 100\n    int d = rs_amount / 50\n    int e = rs_amount / 20\n    int f = rs_amount / 10\n    int g =\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 46,
+    "rollNo": "25F-0817",
+    "gt": 3.5,
+    "solution": "#include <iostream>\nusing namespace std;\nint main()\n{\n    int amount;\n    cout << \"Enter amount in rupees\\n\";\n    cin >> amount;\n    thousand = amount / 1000;\n    Hundred = amount / 100;\n    Five hundred = amount / 500;\n    Fifty = amount / 50;\n    Twenty = amount / 20;\n    Ten = amount / 10;\n    Five = amount / 5;\n    One = amount / 1;\n    cout << \"1000: \" << Thousand;\n    cout << \"500: \" << Five hundred;\n    cout << \"100: \" << Hundred;\n    cout << \"50: \" << Fifty;\n    cout << \"20: \" << Twenty;\n    cout << \"10: \" << Ten;\n    cout << \"5: \" << Five;\n    cout << \"1: \" << One;\n    return 0;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main()\n{\n    int amount;\n    cout << \"Enter amount in rupees\\n\";\n    cin >> amount;\n    thousand = amount / 1000;\n    Hundred = amount / 100;\n    Five hundred = amount / 500;\n    Fifty = amount / 50;\n    Twenty = amount / 20;\n    Ten = amount / 10;\n    Five = amount / 5;\n    One = amount / 1;\n    cout << \"1000: \" << Thousand;\n    cout << \"500: \" << Five hundred;\n    cout << \"100: \" << Hundred;\n    cout << \"50: \" << Fifty;\n    cout << \"20: \" << Twenty;\n    cout << \"10: \" << Ten;\n    cout << \"5: \" << Five;\n    cout << \"1: \" << One;\n    return 0;\n}\n",
+    "wasModified": false
+  },
+  {
+    "rowNum": 47,
+    "rollNo": "25F-3070",
+    "gt": 3.5,
+    "solution": "#include <iostream>\nusing namespace std;\nint main()\n{\n    int amount_in_rupees;\n    cout << \"Enter the amount in rupees between 1000 to 9999\";\n    cin >> amount;\n    a = amount_in_rupees / 1000;\n    b = amount_in_rupees / 100;\n    b = b % 100;\n    c = amount_in_rupees % 100;\n    c = c / 10;\n    d = amount_in_rupees / 10;\n    cout << \"Your change in below In 100\" << endl;\n    cout << \"100:\" << b << \"t 10:\" << c << \"t 1:\" << d << endl;\n}",
+    "cleanedSolution": "#include <iostream>\nusing namespace std;\nint main()\n{\n    int amount_in_rupees;\n    cout << \"Enter the amount in rupees between 1000 to 9999\";\n    cin >> amount;\n    a = amount_in_rupees / 1000;\n    b = amount_in_rupees / 100;\n    b = b % 100;\n    c = amount_in_rupees % 100;\n    c = c / 10;\n    d = amount_in_rupees / 10;\n    cout << \"Your change in below In 100\" << endl;\n    cout << \"100:\" << b << \"t 10:\" << c << \"t 1:\" << d << endl;\n}\n",
+    "wasModified": false
+  }
+]
